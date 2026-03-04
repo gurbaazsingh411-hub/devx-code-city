@@ -2055,7 +2055,7 @@ function HomeContent() {
                   className="transition-colors hover:text-cream"
                   style={{ color: theme.accent }}
                 >
-                  made by devx
+                  DevX
                 </a>
               </p>
             </div>

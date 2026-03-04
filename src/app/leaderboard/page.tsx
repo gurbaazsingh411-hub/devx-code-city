@@ -346,7 +346,7 @@ export default async function LeaderboardPage({
                 className="transition-colors hover:text-cream"
                 style={{ color: ACCENT }}
               >
-                made by devx
+                DevX
               </a>
             </p>
           </div>

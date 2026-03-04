@@ -137,7 +137,7 @@ export default function PrivacyPage() {
                 className="transition-colors hover:text-cream"
                 style={{ color: ACCENT }}
               >
-                made by devx
+                DevX
               </a>{" "}
               on X.
             </p>

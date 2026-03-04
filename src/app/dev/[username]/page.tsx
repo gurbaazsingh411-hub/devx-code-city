@@ -52,8 +52,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      creator: "@devx",
-      site: "@devx",
+      creator: "@DevX",
+      site: "@DevX",
     },
   };
 }
@@ -387,7 +387,7 @@ export default async function DevPage({ params }: Props) {
               className="transition-colors hover:text-cream"
               style={{ color: accent }}
             >
-              made by devx
+              DevX
             </a>
           </p>
         </div>

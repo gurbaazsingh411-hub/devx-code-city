@@ -81,5 +81,5 @@ Open [http://localhost:3001](http://localhost:3001) to see the city.
 ---
 
 <p align="center">
-  Built by <a href="https://devx-code-city.netlify.app">devx</a>
+  Built by <a href="https://devx-code-city.netlify.app">DevX</a>
 </p>
