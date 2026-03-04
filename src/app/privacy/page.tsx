@@ -131,13 +131,13 @@ export default function PrivacyPage() {
             <p>
               Questions about your data? Reach out at{" "}
               <a
-                href="https://x.com/samuelrizzondev"
+                href="https://devx-code-city.netlify.app"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="transition-colors hover:text-cream"
                 style={{ color: ACCENT }}
               >
-                @samuelrizzondev
+                made by devx
               </a>{" "}
               on X.
             </p>

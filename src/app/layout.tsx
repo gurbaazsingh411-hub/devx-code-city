@@ -32,10 +32,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    creator: "@samuelrizzondev",
-    site: "@samuelrizzondev",
+    creator: "@devx",
+    site: "@devx",
   },
-  authors: [{ name: "Samuel Rizzon", url: "https://x.com/samuelrizzondev" }],
+  authors: [{ name: "devx", url: "https://devx-code-city.netlify.app" }],
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-icon.png",
@@ -59,8 +59,8 @@ const jsonLd = {
   operatingSystem: "Web",
   author: {
     "@type": "Person",
-    name: "Samuel Rizzon",
-    url: "https://x.com/samuelrizzondev",
+    name: "devx",
+    url: "https://devx-code-city.netlify.app",
   },
   offers: {
     "@type": "Offer",

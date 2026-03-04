@@ -52,8 +52,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: "summary_large_image",
-      creator: "@samuelrizzondev",
-      site: "@samuelrizzondev",
+      creator: "@devx",
+      site: "@devx",
     },
   };
 }
@@ -381,13 +381,13 @@ export default async function DevPage({ params }: Props) {
           <p className="text-[9px] text-muted normal-case">
             built by{" "}
             <a
-              href="https://x.com/samuelrizzondev"
+              href="https://devx-code-city.netlify.app"
               target="_blank"
               rel="noopener noreferrer"
               className="transition-colors hover:text-cream"
               style={{ color: accent }}
             >
-              @samuelrizzondev
+              made by devx
             </a>
           </p>
         </div>

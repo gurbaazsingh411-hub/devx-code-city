@@ -58,7 +58,7 @@ Buildings are rendered with instanced meshes and a LOD (Level of Detail) system 
 
 ```bash
 # Clone the repo
-git clone https://github.com/srizzon/git-city.git
+git clone https://github.com/gurbaazsingh411-hub/devx-code-city.git
 cd git-city
 
 # Install dependencies
@@ -81,5 +81,5 @@ Open [http://localhost:3001](http://localhost:3001) to see the city.
 ---
 
 <p align="center">
-  Built by <a href="https://x.com/samuelrizzondev">@samuelrizzondev</a>
+  Built by <a href="https://devx-code-city.netlify.app">devx</a>
 </p>
