@@ -61,7 +61,6 @@ export default function TermsPage() {
 
           <Section n={4} title="Intellectual Property">
             <p>
-              Git City, its code, design, and branding are owned by Samuel
               devx. Your GitHub data remains yours. By using the service, you
               grant us a limited license to display your public GitHub data as
               part of the city visualization.
