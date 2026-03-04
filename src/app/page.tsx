@@ -23,9 +23,9 @@ import ActivityPanel from "@/components/ActivityPanel";
 import { ITEM_NAMES, ITEM_EMOJIS } from "@/lib/zones";
 import { useStreakCheckin } from "@/lib/useStreakCheckin";
 import { useLiveUsers } from "@/lib/useLiveUsers";
-import { useRaidSequence } from "@/lib/useRaidSequence";
-import RaidPreviewModal from "@/components/RaidPreviewModal";
-import RaidOverlay from "@/components/RaidOverlay";
+
+
+
 import FounderMessage from "@/components/FounderMessage";
 import DistrictChooser from "@/components/DistrictChooser";
 import LoadingScreen, { type LoadingStage } from "@/components/LoadingScreen";
@@ -441,61 +441,7 @@ function HomeContent() {
   const ghostPreviewShownRef = useRef(false);
   const [ghostPreviewLogin, setGhostPreviewLogin] = useState<string | null>(null);
 
-  // Raid system
-  const [raidState, raidActions] = useRaidSequence();
-  const prevRaidPhaseRef = useRef<string>("idle");
-  const lastSuccessfulRaidRef = useRef<{ defenderLogin: string; attackerLogin: string; tagStyle: string } | null>(null);
-
-  // Fetch GitHub star count + Discord member count
-  useEffect(() => {
-    fetch("https://api.github.com/repos/srizzon/git-city")
-      .then((r) => r.ok ? r.json() : null)
-      .then((d) => { if (d?.stargazers_count != null) setStarCount(d.stargazers_count); })
-      .catch(() => { });
-    fetch("https://discord.com/api/v9/invites/2bTjFAkny7?with_counts=true")
-      .then((r) => r.ok ? r.json() : null)
-      .then((d) => { if (d?.approximate_member_count != null) setDiscordMembers(d.approximate_member_count); })
-      .catch(() => { });
-  }, []);
-
-  // Track successful raid data before state resets
-  useEffect(() => {
-    if (raidState.raidData?.success && raidState.defenderBuilding) {
-      lastSuccessfulRaidRef.current = {
-        defenderLogin: raidState.defenderBuilding.login,
-        attackerLogin: raidState.raidData.attacker.login,
-        tagStyle: raidState.raidData.tag_style,
-      };
-    }
-  }, [raidState.raidData, raidState.defenderBuilding]);
-
-  // Update building with raid tag when raid exits
-  useEffect(() => {
-    const prev = prevRaidPhaseRef.current;
-    prevRaidPhaseRef.current = raidState.phase;
-
-    if (raidState.phase === "idle" && prev !== "idle" && prev !== "preview" && lastSuccessfulRaidRef.current) {
-      const { defenderLogin, attackerLogin, tagStyle } = lastSuccessfulRaidRef.current;
-      lastSuccessfulRaidRef.current = null;
-      setBuildings((prev) =>
-        prev.map((b) =>
-          b.login === defenderLogin
-            ? {
-              ...b,
-              active_raid_tag: {
-                attacker_login: attackerLogin,
-                tag_style: tagStyle,
-                expires_at: new Date(Date.now() + 7 * 86400000).toISOString(),
-              },
-            }
-            : b
-        )
-      );
-    }
-  }, [raidState.phase]);
-
-
-
+  // Raid system removed
   // Derived — second focused building for dual-focus camera
   const focusedBuildingB = comparePair ? comparePair[1].login : null;
 
@@ -504,18 +450,7 @@ function HomeContent() {
   const didInit = useRef(false);
   const savedFocusRef = useRef<string | null>(null);
 
-  // Broadcast mode/theme to global LofiRadio (lives in layout)
-  useEffect(() => {
-    const detail = {
-      flyMode,
-      raidMode: raidState.phase !== "idle" && raidState.phase !== "preview",
-      accent: theme.accent,
-      shadow: theme.shadow,
-    };
-    // Store for late-mounting components (e.g. portal)
-    (window as unknown as Record<string, unknown>).__gcRadioMode = detail;
-    window.dispatchEvent(new CustomEvent("gc:radio-mode", { detail }));
-  }, [flyMode, raidState.phase, theme.accent, theme.shadow]);
+  // LofiRadio removed
 
   // Detect mobile/touch device
   useEffect(() => {
@@ -719,26 +654,11 @@ function HomeContent() {
   // During fly mode: only close overlays (profile card) — AirplaneFlight handles pause/exit
   // Outside fly mode: compare → share modal → profile card → focus → explore mode
   useEffect(() => {
-    if (flyMode && !selectedBuilding) return;
-    if (!flyMode && !exploreMode && !focusedBuilding && !shareData && !selectedBuilding && !giftClaimed && !giftModalOpen && !comparePair && !compareBuilding && !founderMessageOpen && raidState.phase === "idle") return;
+    if (!flyMode && !exploreMode && !focusedBuilding && !shareData && !selectedBuilding && !giftClaimed && !giftModalOpen && !comparePair && !compareBuilding && !founderMessageOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.code === "Escape") {
         // Founder modals take highest priority
         if (founderMessageOpen) { setFounderMessageOpen(false); return; }
-
-        // Raid takes priority
-        if (raidState.phase !== "idle") {
-          if (raidState.phase === "preview") {
-            raidActions.exitRaid();
-          } else if (raidState.phase === "flight" || raidState.phase === "attack") {
-            raidActions.skipToShare();
-          } else if (raidState.phase === "share") {
-            raidActions.exitRaid();
-          } else {
-            raidActions.exitRaid();
-          }
-          return;
-        }
         if (flyMode && selectedBuilding) {
           setSelectedBuilding(null);
           setFocusedBuilding(null);
@@ -766,7 +686,7 @@ function HomeContent() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [flyMode, exploreMode, focusedBuilding, shareData, selectedBuilding, giftClaimed, giftModalOpen, comparePair, compareBuilding, founderMessageOpen, raidState.phase, raidActions]);
+  }, [flyMode, exploreMode, focusedBuilding, shareData, selectedBuilding, giftClaimed, giftModalOpen, comparePair, compareBuilding, founderMessageOpen]);
 
 
 
@@ -1481,11 +1401,6 @@ function HomeContent() {
         onIntroEnd={endIntro}
         onFocusInfo={() => { }}
         ghostPreviewLogin={ghostPreviewLogin}
-        raidPhase={raidState.phase}
-        raidData={raidState.raidData}
-        raidAttacker={raidState.attackerBuilding}
-        raidDefender={raidState.defenderBuilding}
-        onRaidPhaseComplete={raidActions.onPhaseComplete}
         onLandmarkClick={() => { setFounderMessageOpen(true); setSelectedBuilding(null); }}
 
         onBuildingClick={(b) => {
@@ -2200,7 +2115,7 @@ function HomeContent() {
 
       {/* ─── Building Profile Card ─── */}
       {/* Desktop: right edge, vertically centered. Mobile: bottom sheet, centered. */}
-      {selectedBuilding && (!flyMode || flyPaused) && !comparePair && raidState.phase === "idle" && (
+      {selectedBuilding && (!flyMode || flyPaused) && !comparePair && (
         <>
           {/* Nav hints — only on desktop, bottom-right */}
           <div className="pointer-events-none fixed bottom-6 right-6 z-30 hidden text-right text-[9px] leading-loose text-muted sm:block">
@@ -2384,97 +2299,10 @@ function HomeContent() {
                 );
               })()}
 
-              {/* Kudos: give kudos (other's building, logged in) */}
-              {session && selectedBuilding.login.toLowerCase() !== authLogin && (
-                <div className="relative mx-4 mb-3">
-                  {/* Floating emoji animation on success */}
-                  {kudosSent && (
-                    <div className="pointer-events-none absolute inset-0 overflow-visible">
-                      {Array.from({ length: 6 }).map((_, i) => (
-                        <span
-                          key={i}
-                          className="kudos-float absolute text-sm"
-                          style={{
-                            left: `${15 + i * 14}%`,
-                            animationDelay: `${i * 0.08}s`,
-                          }}
-                        >
-                          {["👏", "⭐", "💛", "✨", "👏", "⭐"][i]}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  <button
-                    onClick={handleGiveKudos}
-                    disabled={kudosSending || kudosSent || !!kudosError}
-                    className={[
-                      "btn-press w-full py-2 text-[10px] text-bg transition-all duration-300",
-                      kudosSent ? "scale-[1.02]" : "",
-                    ].join(" ")}
-                    style={{
-                      backgroundColor: kudosError ? "#ff4444" : kudosSent ? "#39d353" : theme.accent,
-                      boxShadow: kudosError
-                        ? "0 0 12px rgba(255,68,68,0.4)"
-                        : kudosSent
-                          ? "0 0 12px rgba(57,211,83,0.4)"
-                          : `2px 2px 0 0 ${theme.shadow}`,
-                    }}
-                  >
-                    {kudosSending ? (
-                      <span className="animate-pulse">Sending...</span>
-                    ) : kudosError ? (
-                      <span>{kudosError}</span>
-                    ) : kudosSent ? (
-                      <span>+1 Kudos!</span>
-                    ) : (
-                      "Give Kudos"
-                    )}
-                  </button>
-                  <button
-                    onClick={handleOpenGift}
-                    className="btn-press mt-1.5 w-full border-[2px] border-border py-1.5 text-[9px] text-cream transition-colors hover:border-border-light"
-                  >
-                    Send Gift
-                  </button>
-                  {/* Raid button */}
-                  {raidState.phase === "idle" && raidState.error && (
-                    <p className="mt-1.5 text-center text-[10px] text-red-400">{raidState.error}</p>
-                  )}
-                  <button
-                    onClick={() => {
-                      if (authLogin && selectedBuilding) {
-                        raidActions.startPreview(selectedBuilding.login, buildings, authLogin);
-                      }
-                    }}
-                    disabled={raidState.loading}
-                    className="btn-press mt-1.5 w-full border-[3px] border-red-500/60 px-4 py-2 text-xs text-red-400 transition-colors hover:bg-red-500/10"
-                  >
-                    {raidState.loading ? "Loading..." : "\u2694\ufe0f BATTLE \u2014 Win +50 XP"}
-                  </button>
-                </div>
-              )}
-
               {/* A3: Disabled action buttons for non-logged users */}
               {!session && (
                 <div className="mx-4 mb-3 space-y-1.5">
-                  <button
-                    onClick={() => { trackDisabledButtonClicked("kudos"); handleSignIn(); }}
-                    className="btn-press w-full py-2 text-[10px] border-[2px] border-dashed border-border/50 text-muted/60 transition-colors hover:border-border hover:text-muted"
-                  >
-                    &#x1F512; Give Kudos
-                  </button>
-                  <button
-                    onClick={() => { trackDisabledButtonClicked("gift"); handleSignIn(); }}
-                    className="btn-press w-full py-1.5 text-[9px] border-[2px] border-dashed border-border/50 text-muted/60 transition-colors hover:border-border hover:text-muted"
-                  >
-                    &#x1F512; Send Gift
-                  </button>
-                  <button
-                    onClick={() => { trackDisabledButtonClicked("raid"); handleSignIn(); }}
-                    className="btn-press w-full py-2 text-[10px] border-[2px] border-dashed border-red-500/30 text-red-400/40 transition-colors hover:border-red-500/60 hover:text-red-400/70"
-                  >
-                    &#x1F512; &#x2694;&#xFE0F; BATTLE
-                  </button>
+                  <p className="text-center text-[10px] text-muted">Sign in to interact with users.</p>
                 </div>
               )}
 
@@ -3183,27 +3011,7 @@ function HomeContent() {
 
       {/* Mark streak achievements as seen on check-in */}
 
-      {/* Raid Preview Modal */}
-      {raidState.phase === "preview" && raidState.previewData && (
-        <RaidPreviewModal
-          preview={raidState.previewData}
-          loading={raidState.loading}
-          error={raidState.error}
-          onRaid={(boostPurchaseId, vehicleId) => raidActions.executeRaid(boostPurchaseId, vehicleId)}
-          onCancel={raidActions.exitRaid}
-        />
-      )}
-
-      {/* Raid Overlay (cinema bars + text + share) */}
-      {raidState.phase !== "idle" && raidState.phase !== "preview" && (
-        <RaidOverlay
-          phase={raidState.phase}
-          raidData={raidState.raidData}
-          onSkip={raidActions.skipToShare}
-          onExit={raidActions.exitRaid}
-        />
-      )}
-
+      {/* Raid system removed */}
       {/* District chooser modal */}
       {districtChooserOpen && myBuilding && (
         <DistrictChooser

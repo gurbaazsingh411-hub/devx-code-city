@@ -11,10 +11,7 @@ import type { FocusInfo } from "./CityScene";
 import type { CityBuilding, CityPlaza, CityDecoration, CityRiver, CityBridge } from "@/lib/github";
 import { seededRandom } from "@/lib/github";
 
-
-import RaidSequence3D, { VehicleMesh } from "./RaidSequence3D";
-import type { RaidPhase } from "@/lib/useRaidSequence";
-import type { RaidExecuteResponse } from "@/lib/raid";
+// Raid logic removed
 import FounderSpire from "./FounderSpire";
 import CelebrationEffect from "./CelebrationEffect";
 import SuperAircraft from "./SuperAircraft";
@@ -1663,11 +1660,6 @@ interface Props {
 
   introMode?: boolean;
   onIntroEnd?: () => void;
-  raidPhase?: RaidPhase;
-  raidData?: RaidExecuteResponse | null;
-  raidAttacker?: CityBuilding | null;
-  raidDefender?: CityBuilding | null;
-  onRaidPhaseComplete?: (phase: RaidPhase) => void;
   onLandmarkClick?: () => void;
   ghostPreviewLogin?: string | null;
   holdRise?: boolean;
@@ -1684,7 +1676,7 @@ function SceneController({ setEmissiveIntensity }: { setEmissiveIntensity: (i: n
 }
 
 
-export default function CityCanvas({ buildings, plazas, decorations, river, bridges, flyMode, flyVehicle, onExitFly, onCollect, onHud, onPause, focusedBuilding, focusedBuildingB, accentColor, onClearFocus, onBuildingClick, onFocusInfo, flyPauseSignal, flyHasOverlay, introMode, onIntroEnd, raidPhase, raidData, raidAttacker, raidDefender, onRaidPhaseComplete, onLandmarkClick, ghostPreviewLogin, holdRise, celebrationActive }: Props) {
+export default function CityCanvas({ buildings, plazas, decorations, river, bridges, flyMode, flyVehicle, onExitFly, onCollect, onHud, onPause, focusedBuilding, focusedBuildingB, accentColor, onClearFocus, onBuildingClick, onFocusInfo, flyPauseSignal, flyHasOverlay, introMode, onIntroEnd, onLandmarkClick, ghostPreviewLogin, holdRise, celebrationActive }: Props) {
   const t = THEME;
   const showPerf = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("perf");
   const [dpr, setDpr] = useState(1);
@@ -1729,18 +1721,8 @@ export default function CityCanvas({ buildings, plazas, decorations, river, brid
 
       {introMode && <IntroFlyover onEnd={onIntroEnd ?? (() => { })} />}
 
-      {!introMode && !flyMode && (!raidPhase || raidPhase === "idle" || raidPhase === "preview") && (
+      {!introMode && !flyMode && (
         <OrbitScene buildings={buildings} focusedBuilding={focusedBuilding ?? null} focusedBuildingB={focusedBuildingB} />
-      )}
-
-      {raidPhase && raidPhase !== "idle" && raidPhase !== "preview" && (
-        <RaidSequence3D
-          phase={raidPhase}
-          attacker={raidAttacker ?? null}
-          defender={raidDefender ?? null}
-          raidData={raidData ?? null}
-          onPhaseComplete={onRaidPhaseComplete ?? (() => { })}
-        />
       )}
 
       {!introMode && flyMode && (
@@ -1772,9 +1754,9 @@ export default function CityCanvas({ buildings, plazas, decorations, river, brid
       <CityScene
         buildings={buildings}
         colors={t.building}
-        focusedBuilding={raidPhase && raidPhase !== "idle" && raidPhase !== "preview" && raidPhase !== "share" && raidPhase !== "done" ? (raidDefender?.login ?? focusedBuilding) : focusedBuilding}
-        focusedBuildingB={raidPhase && raidPhase !== "idle" && raidPhase !== "preview" && raidPhase !== "share" && raidPhase !== "done" ? (raidAttacker?.login ?? null) : focusedBuildingB}
-        hideEffectsFor={raidPhase && raidPhase !== "idle" && raidPhase !== "preview" && raidPhase !== "share" && raidPhase !== "done" ? (raidAttacker?.login ?? null) : null}
+        focusedBuilding={focusedBuilding}
+        focusedBuildingB={focusedBuildingB}
+        hideEffectsFor={null}
         accentColor={t.building.accent}
         onBuildingClick={onBuildingClick}
         onFocusInfo={onFocusInfo}

@@ -6,7 +6,6 @@ import type { CityBuilding } from "@/lib/github";
 import type { BuildingColors } from "./CityCanvas";
 import { ClaimedGlow, BuildingItemEffects } from "./Building3D";
 import { StreakFlame, NeonOutline, ParticleAura, SpotlightEffect } from "./BuildingEffects";
-import RaidTag3D from "./RaidTag3D";
 
 // ─── Memoized per-building effects ────────────────────────────
 
@@ -47,15 +46,6 @@ const ActiveBuildingEffects = memo(function ActiveBuildingEffects({
       )}
       {building.app_streak > 0 && (
         <StreakFlame height={building.height} width={building.width} depth={building.depth} streakDays={building.app_streak} color={accentColor} emissiveIntensity={emissiveIntensity} />
-      )}
-      {building.active_raid_tag && (
-        <RaidTag3D
-          width={building.width}
-          height={building.height}
-          depth={building.depth}
-          attackerLogin={building.active_raid_tag.attacker_login}
-          tagStyle={building.active_raid_tag.tag_style}
-        />
       )}
     </group>
   );

@@ -80,6 +80,7 @@ export interface CityBuilding {
   sideWindowsPerFloor: number;
   litPercentage: number;
   variant: number;
+  biome: "frontend" | "backend" | "data_ai";
 }
 
 export interface CityPlaza {
@@ -497,6 +498,13 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
         ? 'downtown'
         : (dev.district ?? inferDistrict(dev.primary_language));
 
+      let biome: "frontend" | "backend" | "data_ai" = "backend";
+      if (['frontend', 'fullstack', 'mobile', 'creator'].includes(did)) {
+        biome = "frontend";
+      } else if (['data_ai', 'gamedev'].includes(did)) {
+        biome = "data_ai";
+      }
+
       buildings.push({
         login: dev.github_login,
         rank: dev.rank ?? globalDevIndex + i + 1,
@@ -531,6 +539,7 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
         sideWindowsPerFloor,
         litPercentage,
         variant: Math.floor(seededRandom(hashStr(dev.github_login + "variant")) * 7),
+        biome,
       });
     }
 
