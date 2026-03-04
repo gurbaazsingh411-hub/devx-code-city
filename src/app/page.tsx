@@ -501,7 +501,6 @@ function HomeContent() {
 
   const [isMobile, setIsMobile] = useState(false);
 
-  const theme = THEMES[themeIndex];
   const didInit = useRef(false);
   const savedFocusRef = useRef<string | null>(null);
 
@@ -1430,7 +1429,6 @@ function HomeContent() {
           }
           setFlyMode(false); setFlyPaused(false); lastDistrictRef.current = null; setDistrictAnnouncement(null); clearTimeout(announceTimerRef.current);
         }}
-        themeIndex={0}
         onHud={(s, a, x, z, yaw) => {
           setHud({ speed: s, altitude: a });
           // Look-ahead: ~40u ahead of airplane = center of screen
@@ -1794,17 +1792,6 @@ function HomeContent() {
             </button>
           </div>
 
-          {/* Theme switcher (bottom-left) — same position as main controls */}
-          <div className="pointer-events-auto fixed bottom-10 left-3 z-[25] flex items-center gap-2 sm:left-4">
-            <button
-              onClick={cycleTheme}
-              className="btn-press flex items-center gap-1.5 border-[3px] border-border bg-bg/70 px-2.5 py-1 text-[10px] backdrop-blur-sm transition-colors hover:border-border-light"
-            >
-              <span style={{ color: theme.accent }}>&#9654;</span>
-              <span className="text-cream">{theme.name}</span>
-              <span className="text-dim">{themeIndex + 1}/{THEMES.length}</span>
-            </button>
-          </div>
 
           {/* Feed toggle (top-right, below GitHub badges on desktop) */}
           {feedEvents.length >= 1 && (

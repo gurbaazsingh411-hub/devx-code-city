@@ -1750,7 +1750,7 @@ export default function CityCanvas({ buildings, plazas, decorations, river, brid
         </>
       )}
 
-      <Ground key={`ground-${themeIndex}`} color={t.groundColor} grid1={t.grid1} grid2={t.grid2} />
+      <Ground color={t.groundColor} grid1={t.grid1} grid2={t.grid2} />
 
       <FounderSpire onClick={onLandmarkClick ?? (() => { })} />
 
