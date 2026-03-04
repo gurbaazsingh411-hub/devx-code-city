@@ -119,25 +119,6 @@ export default function CityScene({
     return buildings[idx];
   }, [focusedBLower, lookup, buildings]);
 
-  // Generate 15 random beacon locations across the city
-  const randomBeacons = useMemo(() => {
-    if (!buildings || buildings.length === 0) return [];
-
-    // Determine how many we want
-    const count = Math.min(15, buildings.length);
-    const beacons: CityBuilding[] = [];
-
-    // Seeded selection based on total count to remain deterministicish per session
-    // but we can just use simple pseudo random for purely visual scattered beacons
-    const seed = buildings.length * 99;
-
-    for (let i = 0; i < count; i++) {
-      // Pseudo random deterministic choice
-      const idx = Math.floor(Math.abs(Math.sin(seed + i * 17)) * buildings.length);
-      beacons.push(buildings[idx]);
-    }
-    return beacons;
-  }, [buildings]);
 
   const lastFocusUpdate = useRef(-1);
 
@@ -209,18 +190,6 @@ export default function CityScene({
         emissiveIntensity={emissiveIntensity}
       />
 
-      {/* Scattered Random Beacons across the city */}
-      {!introMode && randomBeacons.map((b, i) => (
-        <group key={`beacon-${i}`} position={[b.position[0], 0, b.position[2]]}>
-          <FocusBeacon
-            height={b.height}
-            width={b.width}
-            depth={b.depth}
-            accentColor={accentColor ?? "#c8e64a"}
-            emissiveIntensity={emissiveIntensity}
-          />
-        </group>
-      ))}
     </>
   );
 }

@@ -637,15 +637,15 @@ export default function Building3D({
       />
 
       {/* Skip heavy effects during intro - camera moves too fast to see them */}
-      {!introMode && building.claimed && <ClaimedGlow height={building.height} width={building.width} depth={building.depth} emissiveIntensity={emissiveIntensity} />}
+      {!introMode && focused && building.claimed && <ClaimedGlow height={building.height} width={building.width} depth={building.depth} emissiveIntensity={emissiveIntensity} />}
 
       {!introMode && focused && <FocusBeacon height={building.height} width={building.width} depth={building.depth} accentColor={accentColor ?? "#c8e64a"} emissiveIntensity={emissiveIntensity} />}
 
-      {!introMode && (
+      {!introMode && focused && (
         <BuildingItemEffects building={building} accentColor={accentColor ?? colors.accent ?? "#c8e64a"} focused={focused} emissiveIntensity={emissiveIntensity} />
       )}
 
-      {!introMode && building.app_streak > 0 && (
+      {!introMode && focused && building.app_streak > 0 && (
         <StreakFlame height={building.height} width={building.width} depth={building.depth} streakDays={building.app_streak} color={accentColor ?? colors.accent ?? "#c8e64a"} emissiveIntensity={emissiveIntensity} />
       )}
     </group>
