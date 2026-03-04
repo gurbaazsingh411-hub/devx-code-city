@@ -164,39 +164,37 @@ function createWindowTexture(
 
 // ─── Claimed Glow (neon trim + roof light) ────────────────────
 
-export const ClaimedGlow = memo(function ClaimedGlow({ height, width, depth }: { height: number; width: number; depth: number }) {
-  const trimThickness = 1.2;
-  const trimHeight = 2;
+export const ClaimedGlow = memo(function ClaimedGlow({ height, width, depth, emissiveIntensity = 1.0 }: { height: number; width: number; depth: number; emissiveIntensity?: number }) {
+  const trimThickness = 0.5;
+  const trimHeight = 1.0;
   const accent = "#c8e64a";
   const hw = width / 2 + trimThickness / 2;
   const hd = depth / 2 + trimThickness / 2;
 
   return (
     <group>
-      {/* Neon trim — 4 bars around the roofline */}
       <group position={[0, height - trimHeight / 2, 0]}>
         {/* Front */}
         <mesh position={[0, 0, hd]}>
           <boxGeometry args={[width + trimThickness * 2, trimHeight, trimThickness]} />
-          <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={3} toneMapped={false} />
+          <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={3 * emissiveIntensity} toneMapped={false} />
         </mesh>
         {/* Back */}
         <mesh position={[0, 0, -hd]}>
           <boxGeometry args={[width + trimThickness * 2, trimHeight, trimThickness]} />
-          <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={3} toneMapped={false} />
+          <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={3 * emissiveIntensity} toneMapped={false} />
         </mesh>
         {/* Left */}
         <mesh position={[-hw, 0, 0]}>
           <boxGeometry args={[trimThickness, trimHeight, depth]} />
-          <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={3} toneMapped={false} />
+          <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={3 * emissiveIntensity} toneMapped={false} />
         </mesh>
         {/* Right */}
         <mesh position={[hw, 0, 0]}>
           <boxGeometry args={[trimThickness, trimHeight, depth]} />
-          <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={3} toneMapped={false} />
+          <meshStandardMaterial color={accent} emissive={accent} emissiveIntensity={3 * emissiveIntensity} toneMapped={false} />
         </mesh>
       </group>
-
     </group>
   );
 });
@@ -293,7 +291,11 @@ function BuildingRiseAnimation({
 const BEACON_HEIGHT = 500;
 const SPOTLIGHT_Y = 400; // cone origin high above
 
-export function FocusBeacon({ height, width, depth, accentColor }: { height: number; width: number; depth: number; accentColor: string }) {
+export function FocusBeacon({
+  height, width, depth, accentColor, emissiveIntensity = 1.0
+}: {
+  height: number; width: number; depth: number; accentColor: string; emissiveIntensity?: number
+}) {
   const coneRef = useRef<THREE.Mesh>(null);
   const markerRef = useRef<THREE.Group>(null);
 
@@ -302,11 +304,11 @@ export function FocusBeacon({ height, width, depth, accentColor }: { height: num
     // Cone pulse
     if (coneRef.current) {
       (coneRef.current.material as THREE.MeshBasicMaterial).opacity =
-        0.10 + Math.sin(t * 1.5) * 0.03;
+        (0.08 + Math.sin(t * 1.5) * 0.02) * emissiveIntensity;
     }
     // Marker bob + spin
     if (markerRef.current) {
-      markerRef.current.position.y = height + 35 + Math.sin(t * 2) * 5;
+      markerRef.current.position.y = height + 50 + Math.sin(t * 2) * 5;
       markerRef.current.rotation.y = t * 1.5;
     }
   });
@@ -316,32 +318,22 @@ export function FocusBeacon({ height, width, depth, accentColor }: { height: num
   return (
     <group>
       {/* Batman spotlight cone from sky */}
-      <mesh ref={coneRef} position={[0, SPOTLIGHT_Y / 2, 0]}>
-        <cylinderGeometry args={[0, coneRadius, SPOTLIGHT_Y, 32, 1, true]} />
+      <mesh ref={coneRef} position={[0, BEACON_HEIGHT / 2, 0]}>
+        <coneGeometry args={[40, BEACON_HEIGHT, 32, 1, true]} />
         <meshBasicMaterial
           color={accentColor}
           transparent
-          opacity={0.10}
+          opacity={0.08 * emissiveIntensity}
           side={THREE.DoubleSide}
           depthWrite={false}
         />
       </mesh>
 
-      {/* Thin bright core beam */}
-      <mesh position={[0, BEACON_HEIGHT / 2, 0]}>
-        <boxGeometry args={[2, BEACON_HEIGHT, 2]} />
-        <meshBasicMaterial color={accentColor} transparent opacity={0.3} depthWrite={false} />
-      </mesh>
-
       {/* Floating diamond marker */}
-      <group ref={markerRef} position={[0, height + 35, 0]}>
+      <group ref={markerRef}>
         <mesh>
-          <octahedronGeometry args={[6, 0]} />
-          <meshBasicMaterial color={accentColor} />
-        </mesh>
-        <mesh scale={[1.6, 1.6, 1.6]}>
-          <octahedronGeometry args={[6, 0]} />
-          <meshBasicMaterial color={accentColor} transparent opacity={0.15} />
+          <octahedronGeometry args={[4, 0]} />
+          <meshStandardMaterial color={accentColor} emissive={accentColor} emissiveIntensity={5 * emissiveIntensity} />
         </mesh>
       </group>
     </group>
@@ -352,7 +344,17 @@ export function FocusBeacon({ height, width, depth, accentColor }: { height: num
 
 // ─── Loadout-Aware Effect Rendering ──────────────────────────
 
-export const BuildingItemEffects = memo(function BuildingItemEffects({ building, accentColor, focused }: { building: CityBuilding; accentColor: string; focused?: boolean }) {
+export const BuildingItemEffects = memo(function BuildingItemEffects({
+  building,
+  accentColor,
+  focused,
+  emissiveIntensity = 1.0,
+}: {
+  building: CityBuilding;
+  accentColor: string;
+  focused?: boolean;
+  emissiveIntensity?: number;
+}) {
   const { height, width, depth, owned_items, loadout, billboard_images } = building;
   const items = owned_items ?? [];
 
@@ -465,9 +467,12 @@ interface Props {
   dimmed?: boolean;
   accentColor?: string;
   onClick?: (building: CityBuilding) => void;
+  emissiveIntensity?: number;
 }
 
-export default function Building3D({ building, colors, atlasTexture, introMode, focused, dimmed, accentColor, onClick }: Props) {
+export default function Building3D({
+  building, colors, atlasTexture, introMode, focused, dimmed, accentColor, onClick, emissiveIntensity = 1.0
+}: Props) {
   const groupRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.Mesh>(null);
   const spriteRef = useRef<THREE.Sprite>(null);
@@ -532,24 +537,24 @@ export default function Building3D({ building, colors, atlasTexture, introMode, 
     const roof = new THREE.MeshStandardMaterial({
       color: colors.roof,
       emissive: new THREE.Color(colors.roof),
-      emissiveIntensity: 1.5,
-      roughness: 0.6,
+      emissiveIntensity: 1.5 * emissiveIntensity,
+      roughness: 0.4,
+      metalness: 0.3,
     });
-    const emIntensity = building.custom_color ? 1.5 : 2.0;
     const make = (tex: THREE.CanvasTexture) =>
       new THREE.MeshStandardMaterial({
         map: tex,
         emissive: WHITE,
         emissiveMap: tex,
-        emissiveIntensity: emIntensity,
-        roughness: 0.85,
-        metalness: 0,
+        emissiveIntensity: 2.0 * emissiveIntensity,
+        roughness: 0.3,
+        metalness: 0.6,
       });
     // Reuse material instances for opposite faces (5 allocs -> 3)
     const side = make(textures.side);
     const front = make(textures.front);
     return [side, side, roof, roof, front, front];
-  }, [textures, colors.roof]);
+  }, [textures, colors.roof, emissiveIntensity]);
 
   // Defer label creation until intro is done (saves 160KB+ canvas work per building)
   const labelTexture = useMemo(
@@ -557,20 +562,16 @@ export default function Building3D({ building, colors, atlasTexture, introMode, 
     [building, introMode]
   );
 
-  useEffect(() => {
-    return () => { labelTexture?.dispose(); };
-  }, [labelTexture]);
-
   const labelMaterial = useMemo(
     () =>
       labelTexture
         ? new THREE.SpriteMaterial({
-            map: labelTexture,
-            transparent: true,
-            depthTest: true,
-            sizeAttenuation: true,
-            fog: true,
-          })
+          map: labelTexture,
+          transparent: true,
+          // depthTest: true, // Removed as per instruction, but not explicitly in diff. Keeping original.
+          sizeAttenuation: true,
+          fog: true,
+        })
         : null,
     [labelTexture]
   );
@@ -580,15 +581,17 @@ export default function Building3D({ building, colors, atlasTexture, introMode, 
     return () => {
       for (const mat of materials) mat.dispose();
       labelMaterial?.dispose();
+      labelTexture?.dispose();
     };
-  }, [materials, labelMaterial]);
+  }, [materials, labelMaterial, labelTexture]);
 
   // Dim/undim building when another is focused
   useEffect(() => {
     for (const mat of materials) {
       mat.transparent = dimmed || false;
       mat.opacity = dimmed ? 0.55 : 1;
-      mat.emissiveIntensity = dimmed ? 0.3 : (mat.map ? 2.0 : 1.5);
+      const baseIntensity = mat.map ? 2.0 : 1.5;
+      mat.emissiveIntensity = (dimmed ? 0.3 : baseIntensity) * emissiveIntensity;
     }
     if (labelMaterial) {
       labelMaterial.opacity = focused ? 0 : dimmed ? 0.15 : 1;
@@ -598,7 +601,7 @@ export default function Building3D({ building, colors, atlasTexture, introMode, 
     if (!dimmed && groupRef.current) {
       groupRef.current.visible = true;
     }
-  }, [focused, dimmed, materials, labelMaterial]);
+  }, [focused, dimmed, materials, labelMaterial, emissiveIntensity]);
 
   return (
     <group ref={groupRef} position={[building.position[0], 0, building.position[2]]}>
@@ -639,16 +642,16 @@ export default function Building3D({ building, colors, atlasTexture, introMode, 
       />
 
       {/* Skip heavy effects during intro - camera moves too fast to see them */}
-      {!introMode && building.claimed && <ClaimedGlow height={building.height} width={building.width} depth={building.depth} />}
+      {!introMode && building.claimed && <ClaimedGlow height={building.height} width={building.width} depth={building.depth} emissiveIntensity={emissiveIntensity} />}
 
-      {!introMode && focused && <FocusBeacon height={building.height} width={building.width} depth={building.depth} accentColor={accentColor ?? "#c8e64a"} />}
+      {!introMode && focused && <FocusBeacon height={building.height} width={building.width} depth={building.depth} accentColor={accentColor ?? "#c8e64a"} emissiveIntensity={emissiveIntensity} />}
 
       {!introMode && (
-        <BuildingItemEffects building={building} accentColor={accentColor ?? colors.accent ?? "#c8e64a"} focused={focused} />
+        <BuildingItemEffects building={building} accentColor={accentColor ?? colors.accent ?? "#c8e64a"} focused={focused} emissiveIntensity={emissiveIntensity} />
       )}
 
       {!introMode && building.app_streak > 0 && (
-        <StreakFlame height={building.height} width={building.width} depth={building.depth} streakDays={building.app_streak} color={accentColor ?? colors.accent ?? "#c8e64a"} />
+        <StreakFlame height={building.height} width={building.width} depth={building.depth} streakDays={building.app_streak} color={accentColor ?? colors.accent ?? "#c8e64a"} emissiveIntensity={emissiveIntensity} />
       )}
     </group>
   );

@@ -59,6 +59,7 @@ const fragmentShader = /* glsl */ `
   uniform float uFocusedIdB;
   uniform float uDimOpacity;
   uniform float uDimEmissive;
+  uniform float uEmissiveIntensity;
 
   varying vec2 vUv;
   varying vec3 vNormal;
@@ -96,11 +97,11 @@ const fragmentShader = /* glsl */ `
     }
 
     // Emissive glow for lit windows
-    vec3 emissive = wallColor * 1.8;
+    vec3 emissive = wallColor * 1.8 * uEmissiveIntensity;
     vec3 wallFinal = wallColor * 0.3 + emissive;
 
     // Roof: solid color with emissive
-    vec3 roofFinal = uRoofColor * 1.8;
+    vec3 roofFinal = uRoofColor * 1.8 * uEmissiveIntensity;
 
     vec3 color = mix(wallFinal, roofFinal, isRoof);
 
@@ -168,6 +169,7 @@ interface InstancedBuildingsProps {
   dimOpacity?: number;
   dimEmissive?: number;
   holdRise?: boolean;
+  emissiveIntensity?: number;
 }
 
 // Rise animation tracking
@@ -194,6 +196,7 @@ export default memo(function InstancedBuildings({
   dimOpacity,
   dimEmissive,
   holdRise,
+  emissiveIntensity = 1.0,
 }: InstancedBuildingsProps) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const count = buildings.length;
@@ -224,6 +227,7 @@ export default memo(function InstancedBuildings({
         uFocusedIdB: { value: -1.0 },
         uDimOpacity: { value: 0.6 },
         uDimEmissive: { value: 0.5 },
+        uEmissiveIntensity: { value: 1.0 },
       },
       vertexShader,
       fragmentShader,
@@ -236,8 +240,9 @@ export default memo(function InstancedBuildings({
     material.uniforms.uAtlas.value = atlasTexture;
     material.uniforms.uRoofColor.value.set(colors.roof);
     material.uniforms.uFaceColor.value.set(colors.face);
+    material.uniforms.uEmissiveIntensity.value = emissiveIntensity;
     material.needsUpdate = true;
-  }, [material, atlasTexture, colors.roof, colors.face]);
+  }, [material, atlasTexture, colors.roof, colors.face, emissiveIntensity]);
 
   // Per-instance attribute buffers
   const { uvFrontData, uvSideData, riseData, tintData } = useMemo(() => {

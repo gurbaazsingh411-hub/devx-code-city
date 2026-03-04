@@ -17,6 +17,7 @@ const ActiveBuildingEffects = memo(function ActiveBuildingEffects({
   isDimmed,
   isGhostTarget,
   ghostEffectId,
+  emissiveIntensity = 1.0,
 }: {
   building: CityBuilding;
   accentColor: string;
@@ -24,26 +25,28 @@ const ActiveBuildingEffects = memo(function ActiveBuildingEffects({
   isDimmed: boolean;
   isGhostTarget: boolean;
   ghostEffectId: number;
+  emissiveIntensity?: number;
 }) {
   return (
     <group position={[building.position[0], 0, building.position[2]]} visible={!isDimmed}>
       {building.claimed && (
-        <ClaimedGlow height={building.height} width={building.width} depth={building.depth} />
+        <ClaimedGlow height={building.height} width={building.width} depth={building.depth} emissiveIntensity={emissiveIntensity} />
       )}
       <BuildingItemEffects
         building={building}
         accentColor={accentColor}
         focused={isFocused}
+        emissiveIntensity={emissiveIntensity}
       />
       {isGhostTarget && (
         ghostEffectId === 0
-          ? <NeonOutline width={building.width} height={building.height} depth={building.depth} color={accentColor} />
+          ? <NeonOutline width={building.width} height={building.height} depth={building.depth} color={accentColor} emissiveIntensity={emissiveIntensity} />
           : ghostEffectId === 1
-          ? <ParticleAura width={building.width} height={building.height} depth={building.depth} color={accentColor} />
-          : <SpotlightEffect height={building.height} width={building.width} depth={building.depth} color={accentColor} />
+            ? <ParticleAura width={building.width} height={building.height} depth={building.depth} color={accentColor} emissiveIntensity={emissiveIntensity} />
+            : <SpotlightEffect height={building.height} width={building.width} depth={building.depth} color={accentColor} emissiveIntensity={emissiveIntensity} />
       )}
       {building.app_streak > 0 && (
-        <StreakFlame height={building.height} width={building.width} depth={building.depth} streakDays={building.app_streak} color={accentColor} />
+        <StreakFlame height={building.height} width={building.width} depth={building.depth} streakDays={building.app_streak} color={accentColor} emissiveIntensity={emissiveIntensity} />
       )}
       {building.active_raid_tag && (
         <RaidTag3D
@@ -284,8 +287,8 @@ export default function EffectsLayer({
           {ghostEffectId === 0
             ? <NeonOutline width={ghostBuilding.width} height={ghostBuilding.height} depth={ghostBuilding.depth} color={accentColor} />
             : ghostEffectId === 1
-            ? <ParticleAura width={ghostBuilding.width} height={ghostBuilding.height} depth={ghostBuilding.depth} color={accentColor} />
-            : <SpotlightEffect height={ghostBuilding.height} width={ghostBuilding.width} depth={ghostBuilding.depth} color={accentColor} />
+              ? <ParticleAura width={ghostBuilding.width} height={ghostBuilding.height} depth={ghostBuilding.depth} color={accentColor} />
+              : <SpotlightEffect height={ghostBuilding.height} width={ghostBuilding.width} depth={ghostBuilding.depth} color={accentColor} />
           }
         </group>
       )}

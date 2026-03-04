@@ -61,11 +61,13 @@ export const ParticleAura = memo(function ParticleAura({
   height,
   depth,
   color = "#c8e64a",
+  emissiveIntensity = 1.0,
 }: {
   width: number;
   height: number;
   depth: number;
   color?: string;
+  emissiveIntensity?: number;
 }) {
   const pointsRef = useRef<THREE.Points>(null);
   const frameCount = useRef(0);
@@ -117,7 +119,7 @@ export const ParticleAura = memo(function ParticleAura({
         color={color}
         size={2.5}
         transparent
-        opacity={0.7}
+        opacity={0.6 * emissiveIntensity}
         depthWrite={false}
         sizeAttenuation
       />
@@ -133,11 +135,13 @@ export const SpotlightEffect = memo(function SpotlightEffect({
   width,
   depth,
   color = "#c8e64a",
+  emissiveIntensity = 1.0,
 }: {
   height: number;
   width: number;
   depth: number;
   color?: string;
+  emissiveIntensity?: number;
 }) {
   const beam1 = useRef<THREE.Group>(null);
   const beam2 = useRef<THREE.Group>(null);
@@ -165,7 +169,7 @@ export const SpotlightEffect = memo(function SpotlightEffect({
     <meshBasicMaterial
       color={color}
       transparent
-      opacity={0.1}
+      opacity={0.1 * emissiveIntensity}
       blending={THREE.AdditiveBlending}
       depthWrite={false}
       side={THREE.DoubleSide}
@@ -176,7 +180,7 @@ export const SpotlightEffect = memo(function SpotlightEffect({
     <meshBasicMaterial
       color={color}
       transparent
-      opacity={0.04}
+      opacity={0.04 * emissiveIntensity}
       blending={THREE.AdditiveBlending}
       depthWrite={false}
       side={THREE.DoubleSide}
@@ -189,7 +193,7 @@ export const SpotlightEffect = memo(function SpotlightEffect({
       <group ref={beam1} position={[-spread, 0, -spread * 0.5]}>
         {/* Projector box base */}
         <mesh position={[0, 0.6, 0]} geometry={_box} scale={[2, 1.2, 2]}>
-          <meshStandardMaterial color="#333340" emissive="#666666" emissiveIntensity={2} toneMapped={false} metalness={0.7} roughness={0.3} />
+          <meshStandardMaterial color="#333340" emissive="#666666" emissiveIntensity={2 * emissiveIntensity} toneMapped={false} metalness={0.7} roughness={0.3} />
         </mesh>
         {/* Inner beam */}
         <mesh position={[0, beamH / 2 + 1, 0]}>
@@ -206,7 +210,7 @@ export const SpotlightEffect = memo(function SpotlightEffect({
       {/* Beam 2 */}
       <group ref={beam2} position={[spread, 0, spread * 0.5]}>
         <mesh position={[0, 0.6, 0]} geometry={_box} scale={[2, 1.2, 2]}>
-          <meshStandardMaterial color="#333340" emissive="#666666" emissiveIntensity={2} toneMapped={false} metalness={0.7} roughness={0.3} />
+          <meshStandardMaterial color="#333340" emissive="#666666" emissiveIntensity={2 * emissiveIntensity} toneMapped={false} metalness={0.7} roughness={0.3} />
         </mesh>
         <mesh position={[0, beamH / 2 + 1, 0]}>
           <coneGeometry args={[topR, beamH, 8, 1, true]} />
@@ -220,6 +224,8 @@ export const SpotlightEffect = memo(function SpotlightEffect({
     </group>
   );
 });
+
+// ─── LED Banner removed (duplicate) ───
 
 // ─── Rooftop Fire ────────────────────────────────────────────
 // Blocky contained campfire with strong orange glow
@@ -629,7 +635,7 @@ function useBillboardTexture(imageUrl?: string | null) {
     return () => {
       cancelled = true;
     };
-  }, [imageUrl]);
+  }, []);
 
   // Dispose on unmount
   useEffect(() => {
@@ -721,31 +727,31 @@ export const Billboards = memo(function Billboards({
       getPos: (along: number, y: number) => [number, number, number];
       rotation: [number, number, number];
     }> = [
-      {
-        // Front (+Z)
-        faceWidth: width,
-        getPos: (along, y) => [along, y, depth / 2 + 0.5],
-        rotation: [0, 0, 0],
-      },
-      {
-        // Right (+X)
-        faceWidth: depth,
-        getPos: (along, y) => [width / 2 + 0.5, y, along],
-        rotation: [0, -Math.PI / 2, 0],
-      },
-      {
-        // Back (-Z)
-        faceWidth: width,
-        getPos: (along, y) => [-along, y, -(depth / 2 + 0.5)],
-        rotation: [0, Math.PI, 0],
-      },
-      {
-        // Left (-X)
-        faceWidth: depth,
-        getPos: (along, y) => [-(width / 2 + 0.5), y, -along],
-        rotation: [0, Math.PI / 2, 0],
-      },
-    ];
+        {
+          // Front (+Z)
+          faceWidth: width,
+          getPos: (along, y) => [along, y, depth / 2 + 0.5],
+          rotation: [0, 0, 0],
+        },
+        {
+          // Right (+X)
+          faceWidth: depth,
+          getPos: (along, y) => [width / 2 + 0.5, y, along],
+          rotation: [0, -Math.PI / 2, 0],
+        },
+        {
+          // Back (-Z)
+          faceWidth: width,
+          getPos: (along, y) => [-along, y, -(depth / 2 + 0.5)],
+          rotation: [0, Math.PI, 0],
+        },
+        {
+          // Left (-X)
+          faceWidth: depth,
+          getPos: (along, y) => [-(width / 2 + 0.5), y, -along],
+          rotation: [0, Math.PI / 2, 0],
+        },
+      ];
 
     const result: Array<{
       position: [number, number, number];
@@ -812,11 +818,13 @@ export const Flag = memo(function Flag({
   width,
   depth,
   color = "#c8e64a",
+  emissiveIntensity = 1.0,
 }: {
   height: number;
   width: number;
   depth: number;
   color?: string;
+  emissiveIntensity?: number;
 }) {
   const flagRef = useRef<THREE.Mesh>(null);
   const frameCount = useRef(0);
@@ -842,9 +850,11 @@ export const Flag = memo(function Flag({
       {/* Flag cloth */}
       <mesh ref={flagRef} position={[2.5, poleHeight - 1.5, 0]} geometry={_plane} scale={[5, 3, 1]}>
         <meshStandardMaterial
-          color={color}
+          color="#111"
           emissive={color}
-          emissiveIntensity={0.5}
+          emissiveIntensity={2.5 * emissiveIntensity}
+          metalness={0.8}
+          roughness={0.2}
           side={THREE.DoubleSide}
         />
       </mesh>
@@ -865,11 +875,13 @@ export const NeonTrim = memo(function NeonTrim({
   height,
   depth,
   color = "#c8e64a",
+  emissiveIntensity = 1.0,
 }: {
   width: number;
   height: number;
   depth: number;
   color?: string;
+  emissiveIntensity?: number;
 }) {
   const edgesRef = useRef<THREE.Group>(null);
   const scanRef = useRef<THREE.Group>(null);
@@ -1149,11 +1161,13 @@ export const HologramRing = memo(function HologramRing({
   height,
   depth,
   color = "#c8e64a",
+  emissiveIntensity = 1.0,
 }: {
   width: number;
   height: number;
   depth: number;
   color?: string;
+  emissiveIntensity?: number;
 }) {
   const shieldRef = useRef<THREE.Mesh>(null);
   const dataRing1 = useRef<THREE.Mesh>(null);
@@ -1218,7 +1232,7 @@ export const HologramRing = memo(function HologramRing({
           <meshBasicMaterial
             color={color}
             transparent
-            opacity={0.45}
+            opacity={0.45 * emissiveIntensity}
             blending={THREE.AdditiveBlending}
             depthWrite={false}
           />
@@ -1255,11 +1269,13 @@ export const LightningAura = memo(function LightningAura({
   height,
   depth,
   color = "#c8e64a",
+  emissiveIntensity = 1.0,
 }: {
   width: number;
   height: number;
   depth: number;
   color?: string;
+  emissiveIntensity?: number;
 }) {
   const rainRef = useRef<THREE.Group>(null);
   const boltsRef = useRef<THREE.Group>(null);
@@ -1404,7 +1420,7 @@ export const LightningAura = memo(function LightningAura({
     if (cloudsRef.current) {
       cloudsRef.current.children.forEach((c) => {
         const mat = (c as THREE.Mesh).material as THREE.MeshStandardMaterial;
-        mat.emissiveIntensity = striking ? 4.0 : 0;
+        mat.emissiveIntensity = striking ? 4.0 * emissiveIntensity : 0;
         mat.toneMapped = !striking;
       });
     }
@@ -1453,11 +1469,13 @@ export const LEDBanner = memo(function LEDBanner({
   width,
   depth,
   color = "#c8e64a",
+  emissiveIntensity = 1.0,
 }: {
   height: number;
   width: number;
   depth: number;
   color?: string;
+  emissiveIntensity?: number;
 }) {
   const groupRef = useRef<THREE.Group>(null);
   const frameCount = useRef(0);
@@ -1490,7 +1508,7 @@ export const LEDBanner = memo(function LEDBanner({
         if (!mesh) { idx++; continue; }
         const mat = mesh.material as THREE.MeshStandardMaterial;
         const phase = (s / LED_SEGS + f * 0.25 + t * 0.4) % 1;
-        const brightness = 0.3 + Math.pow(Math.sin(phase * Math.PI), 2) * 2.5;
+        const brightness = (0.3 + Math.pow(Math.sin(phase * Math.PI), 2) * 2.5) * emissiveIntensity;
         mat.emissiveIntensity = brightness;
         const scale = 1 + (brightness > 2 ? 0.05 : 0);
         mesh.scale.y = bannerH * scale;
@@ -1531,12 +1549,14 @@ export const StreakFlame = memo(function StreakFlame({
   depth,
   streakDays,
   color = "#c8e64a",
+  emissiveIntensity = 1.0,
 }: {
   height: number;
   width: number;
   depth: number;
   streakDays: number;
   color?: string;
+  emissiveIntensity?: number;
 }) {
   // Streak determines how far up the strips go (10% to 100%)
   const fillPct = Math.min(1, streakDays <= 1 ? 0.1 : streakDays < 7 ? streakDays / 30 : streakDays < 14 ? 0.5 : streakDays < 30 ? 0.75 : 1);
@@ -1560,7 +1580,7 @@ export const StreakFlame = memo(function StreakFlame({
     <group>
       {corners.map((c, i) => (
         <mesh key={i} position={[c.x, stripH / 2, c.z]} geometry={_box} scale={[stripW, stripH, stripW]}>
-          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={intensity} toneMapped={false} transparent opacity={0.85} depthWrite={false} />
+          <meshStandardMaterial color={color} emissive={color} emissiveIntensity={intensity * emissiveIntensity} toneMapped={false} transparent opacity={0.85} depthWrite={false} />
         </mesh>
       ))}
     </group>

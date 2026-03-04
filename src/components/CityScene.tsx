@@ -74,6 +74,7 @@ interface CitySceneProps {
   flyMode?: boolean;
   ghostPreviewLogin?: string | null;
   holdRise?: boolean;
+  emissiveIntensity?: number;
 }
 
 export default function CityScene({
@@ -89,6 +90,7 @@ export default function CityScene({
   flyMode,
   ghostPreviewLogin,
   holdRise,
+  emissiveIntensity = 1.0,
 }: CitySceneProps) {
   // Single atlas texture for all building windows (created once per theme)
   const atlasTexture = useMemo(() => createWindowAtlas(colors), [colors]);
@@ -161,6 +163,7 @@ export default function CityScene({
         introMode={introMode}
         onBuildingClick={onBuildingClick}
         holdRise={holdRise}
+        emissiveIntensity={emissiveIntensity}
       />
 
       {/* All labels: single instanced draw call with billboard shader */}
@@ -184,6 +187,7 @@ export default function CityScene({
         introMode={introMode}
         flyMode={flyMode}
         ghostPreviewLogin={ghostPreviewLogin}
+        emissiveIntensity={emissiveIntensity}
       />
 
       {/* FocusBeacon: standalone, only when a building is focused */}
@@ -194,6 +198,7 @@ export default function CityScene({
             width={focusedBuildingData.width}
             depth={focusedBuildingData.depth}
             accentColor={accentColor ?? "#c8e64a"}
+            emissiveIntensity={emissiveIntensity}
           />
         </group>
       )}
@@ -205,6 +210,7 @@ export default function CityScene({
             width={focusedBuildingBData.width}
             depth={focusedBuildingBData.depth}
             accentColor={accentColor ?? "#c8e64a"}
+            emissiveIntensity={emissiveIntensity}
           />
         </group>
       )}

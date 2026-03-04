@@ -17,10 +17,12 @@ import type { RaidExecuteResponse } from "@/lib/raid";
 import FounderSpire from "./FounderSpire";
 import WhiteRabbit from "./WhiteRabbit";
 import CelebrationEffect from "./CelebrationEffect";
+import SuperAircraft from "./SuperAircraft";
 
 // ─── Theme Definitions ───────────────────────────────────────
 
 export const THEME_NAMES = [
+  "Modern",
   "Midnight",
   "Sunset",
   "Neon",
@@ -63,7 +65,28 @@ interface CityTheme {
 }
 
 const THEMES: CityTheme[] = [
-  // 0 – Midnight
+  // 0 – Modern
+  {
+    sky: [
+      [0, "#02040a"], [0.2, "#050a18"], [0.4, "#0a1428"], [0.6, "#101a35"],
+      [0.8, "#050a18"], [1, "#010206"],
+    ],
+    fogColor: "#050812", fogNear: 600, fogFar: 3000,
+    ambientColor: "#5070a0", ambientIntensity: 0.6,
+    sunColor: "#ffffff", sunIntensity: 1.2, sunPos: [500, 300, -400],
+    fillColor: "#204080", fillIntensity: 0.5, fillPos: [-300, 100, 300],
+    hemiSky: "#80a0ff", hemiGround: "#0a0a10", hemiIntensity: 0.7,
+    groundColor: "#05050a", grid1: "#1a1a25", grid2: "#101018",
+    roadMarkingColor: "#405070",
+    sidewalkColor: "#151820",
+    building: {
+      windowLit: ["#70a0ff", "#4080ff", "#a0c0ff", "#ffffff"],
+      windowOff: "#020408", face: "#080c14", roof: "#1a2538",
+      accent: "#40a0ff",
+    },
+    waterColor: "#020610", waterEmissive: "#050a20", dockColor: "#101520",
+  },
+  // 1 – Midnight
   {
     sky: [
       [0, "#000206"], [0.15, "#020814"], [0.30, "#061428"], [0.45, "#0c2040"],
@@ -84,7 +107,7 @@ const THEMES: CityTheme[] = [
     },
     waterColor: "#0a1830", waterEmissive: "#0a2050", dockColor: "#3a2818",
   },
-  // 1 – Sunset
+  // 2 – Sunset
   {
     sky: [
       [0, "#0c0614"], [0.15, "#1c0e30"], [0.28, "#3a1850"], [0.38, "#6a3060"],
@@ -106,7 +129,7 @@ const THEMES: CityTheme[] = [
     },
     waterColor: "#1a2040", waterEmissive: "#102060", dockColor: "#4a3020",
   },
-  // 2 – Neon
+  // 3 – Neon
   {
     sky: [
       [0, "#06001a"], [0.15, "#100028"], [0.30, "#200440"], [0.42, "#380650"],
@@ -128,7 +151,7 @@ const THEMES: CityTheme[] = [
     },
     waterColor: "#0c0830", waterEmissive: "#1008a0", dockColor: "#2a1838",
   },
-  // 3 – Emerald
+  // 4 – Emerald
   {
     sky: [
       [0, "#000804"], [0.15, "#001408"], [0.30, "#002810"], [0.42, "#003c1c"],
@@ -191,19 +214,11 @@ function SkyDome({ stops }: { stops: [number, string][] }) {
   );
 }
 
-// ─── Paper Plane (GLB model) ─────────────────────────────────
+// ─── Super Aircraft ─────────────────────────────────────────
 
-function PlaneModel() {
-  const { scene } = useGLTF("/models/paper-plane.glb");
-
-  return (
-    <group scale={[3, 3, 3]} rotation={[0, Math.PI / 2, 0]}>
-      <primitive object={scene} />
-    </group>
-  );
+function AircraftModel() {
+  return <SuperAircraft />;
 }
-
-useGLTF.preload("/models/paper-plane.glb");
 
 // ─── Intro Flyover ──────────────────────────────────────────
 
@@ -1275,7 +1290,7 @@ function InstancedDecorations({ items, roadMarkingColor, sidewalkColor }: { item
     fountainMid: new THREE.CylinderGeometry(5, 5.5, 2, 12),
     fountainUpper: new THREE.CylinderGeometry(2.5, 3.2, 2, 10),
     fountainWater: new THREE.CylinderGeometry(1.8, 2, 1.2, 10),
-  }), []);
+  }), geos);
 
   // Shared materials
   const mats = useMemo(() => ({
@@ -1791,7 +1806,7 @@ function OrbitScene({ buildings, focusedBuilding, focusedBuildingB }: { building
 
   return (
     <>
-      <CameraFocus buildings={buildings} focusedBuilding={focusedBuilding} focusedBuildingB={focusedBuildingB} controlsRef={controlsRef} />
+      <CameraFocus buildings={buildings} focusedBuilding={focusedBuilding ?? null} focusedBuildingB={focusedBuildingB} controlsRef={controlsRef} />
       <OrbitControls
         ref={controlsRef}
         enableDamping
@@ -1849,6 +1864,15 @@ interface Props {
   celebrationActive?: boolean;
 }
 
+function SceneController({ setEmissiveIntensity }: { setEmissiveIntensity: (i: number) => void }) {
+  useFrame(({ clock }) => {
+    const t = clock.elapsedTime;
+    const pulse = 1.0 + Math.sin(t * 0.5) * 0.1;
+    setEmissiveIntensity(pulse);
+  });
+  return null;
+}
+
 // Plaza indices for rabbit sightings (progressively further from center)
 const RABBIT_PLAZA_INDICES = [1, 2, 4, 7, 10]; // plazas[1]=slot3, [2]=slot7, [4]=slot18, [7]=slot42, [10]=slot75
 
@@ -1858,6 +1882,7 @@ export default function CityCanvas({ buildings, plazas, decorations, river, brid
   const [dpr, setDpr] = useState(1);
   const [bloomEnabled, setBloomEnabled] = useState(false);
   const flyPosRef = useRef(new THREE.Vector3());
+  const [emissiveIntensity, setEmissiveIntensity] = useState(1.0);
 
   const cityRadius = useMemo(() => {
     let max = 200;
@@ -1875,6 +1900,7 @@ export default function CityCanvas({ buildings, plazas, decorations, river, brid
       gl={{ antialias: false, powerPreference: "high-performance", toneMapping: THREE.ACESFilmicToneMapping, toneMappingExposure: 1.3 }}
       style={{ position: "fixed", inset: 0, width: "100vw", height: "100vh" }}
     >
+      <SceneController setEmissiveIntensity={setEmissiveIntensity} />
       {showPerf && <Stats />}
       <PerformanceMonitor
         onIncline={() => { setDpr(1.25); setBloomEnabled(true); }}
@@ -1965,7 +1991,12 @@ export default function CityCanvas({ buildings, plazas, decorations, river, brid
         flyMode={flyMode}
         ghostPreviewLogin={ghostPreviewLogin}
         holdRise={holdRise}
+        emissiveIntensity={emissiveIntensity}
       />
+
+      <group visible={introMode}>
+        <AircraftModel />
+      </group>
 
       <InstancedDecorations items={decorations} roadMarkingColor={t.roadMarkingColor} sidewalkColor={t.sidewalkColor} />
 
