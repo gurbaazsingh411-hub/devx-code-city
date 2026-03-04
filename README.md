@@ -8,9 +8,7 @@
   Built by <strong>Gurbaaz Singh</strong>, President of <strong>DevX GTBIT</strong>
 </p>
 
-<p align="center">
-  <img src="public/og-image.png" alt="DevX GitHub City — Where Code Builds Cities" width="800" />
-</p>
+
 
 ---
 

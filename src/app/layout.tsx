@@ -87,11 +87,11 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Silkscreen&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
       </head>
-      <body className="bg-bg font-pixel text-warm" suppressHydrationWarning>
+      <body className="bg-bg font-sans text-warm" suppressHydrationWarning>
         {children}
         {process.env.NEXT_PUBLIC_HIMETRICA_API_KEY && (
           <>

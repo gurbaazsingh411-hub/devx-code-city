@@ -105,7 +105,6 @@ export default function CityScene({
   const focusedLower = focusedBuilding?.toLowerCase() ?? null;
   const focusedBLower = focusedBuildingB?.toLowerCase() ?? null;
 
-  // Focused building data (for FocusBeacon positioning)
   const focusedBuildingData = useMemo(() => {
     if (!focusedLower) return null;
     const idx = lookup.indexByLogin.get(focusedLower);
@@ -119,6 +118,26 @@ export default function CityScene({
     if (idx === undefined) return null;
     return buildings[idx];
   }, [focusedBLower, lookup, buildings]);
+
+  // Generate 15 random beacon locations across the city
+  const randomBeacons = useMemo(() => {
+    if (!buildings || buildings.length === 0) return [];
+
+    // Determine how many we want
+    const count = Math.min(15, buildings.length);
+    const beacons: CityBuilding[] = [];
+
+    // Seeded selection based on total count to remain deterministicish per session
+    // but we can just use simple pseudo random for purely visual scattered beacons
+    const seed = buildings.length * 99;
+
+    for (let i = 0; i < count; i++) {
+      // Pseudo random deterministic choice
+      const idx = Math.floor(Math.abs(Math.sin(seed + i * 17)) * buildings.length);
+      beacons.push(buildings[idx]);
+    }
+    return beacons;
+  }, [buildings]);
 
   const lastFocusUpdate = useRef(-1);
 
@@ -190,30 +209,18 @@ export default function CityScene({
         emissiveIntensity={emissiveIntensity}
       />
 
-      {/* FocusBeacon: standalone, only when a building is focused */}
-      {!introMode && focusedBuildingData && (
-        <group position={[focusedBuildingData.position[0], 0, focusedBuildingData.position[2]]}>
+      {/* Scattered Random Beacons across the city */}
+      {!introMode && randomBeacons.map((b, i) => (
+        <group key={`beacon-${i}`} position={[b.position[0], 0, b.position[2]]}>
           <FocusBeacon
-            height={focusedBuildingData.height}
-            width={focusedBuildingData.width}
-            depth={focusedBuildingData.depth}
+            height={b.height}
+            width={b.width}
+            depth={b.depth}
             accentColor={accentColor ?? "#c8e64a"}
             emissiveIntensity={emissiveIntensity}
           />
         </group>
-      )}
-
-      {!introMode && focusedBuildingBData && focusedBuildingBData !== focusedBuildingData && (
-        <group position={[focusedBuildingBData.position[0], 0, focusedBuildingBData.position[2]]}>
-          <FocusBeacon
-            height={focusedBuildingBData.height}
-            width={focusedBuildingBData.width}
-            depth={focusedBuildingBData.depth}
-            accentColor={accentColor ?? "#c8e64a"}
-            emissiveIntensity={emissiveIntensity}
-          />
-        </group>
-      )}
+      ))}
     </>
   );
 }
