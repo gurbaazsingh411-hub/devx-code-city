@@ -79,6 +79,7 @@ export interface CityBuilding {
   windowsPerFloor: number;
   sideWindowsPerFloor: number;
   litPercentage: number;
+  variant: number;
 }
 
 export interface CityPlaza {
@@ -529,6 +530,7 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
         windowsPerFloor,
         sideWindowsPerFloor,
         litPercentage,
+        variant: Math.floor(seededRandom(hashStr(dev.github_login + "variant")) * 7),
       });
     }
 
