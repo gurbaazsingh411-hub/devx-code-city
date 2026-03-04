@@ -28,15 +28,17 @@ const ActiveBuildingEffects = memo(function ActiveBuildingEffects({
 }) {
   return (
     <group position={[building.position[0], 0, building.position[2]]} visible={!isDimmed}>
-      {building.claimed && (
+      {isFocused && building.claimed && (
         <ClaimedGlow height={building.height} width={building.width} depth={building.depth} emissiveIntensity={emissiveIntensity} />
       )}
-      <BuildingItemEffects
-        building={building}
-        accentColor={accentColor}
-        focused={isFocused}
-        emissiveIntensity={emissiveIntensity}
-      />
+      {isFocused && (
+        <BuildingItemEffects
+          building={building}
+          accentColor={accentColor}
+          focused={isFocused}
+          emissiveIntensity={emissiveIntensity}
+        />
+      )}
       {isGhostTarget && (
         ghostEffectId === 0
           ? <NeonOutline width={building.width} height={building.height} depth={building.depth} color={accentColor} />
@@ -44,7 +46,7 @@ const ActiveBuildingEffects = memo(function ActiveBuildingEffects({
             ? <ParticleAura width={building.width} height={building.height} depth={building.depth} color={accentColor} emissiveIntensity={emissiveIntensity} />
             : <SpotlightEffect height={building.height} width={building.width} depth={building.depth} color={accentColor} />
       )}
-      {building.app_streak > 0 && (
+      {isFocused && building.app_streak > 0 && (
         <StreakFlame height={building.height} width={building.width} depth={building.depth} streakDays={building.app_streak} color={accentColor} emissiveIntensity={emissiveIntensity} />
       )}
     </group>

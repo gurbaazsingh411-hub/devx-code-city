@@ -66,7 +66,7 @@ export default function SuperAircraft() {
     });
 
     return (
-        <group ref={groupRef} scale={[3, 3, 3]} rotation={[0, -Math.PI / 2, 0]}>
+        <group ref={groupRef} scale={[3, 3, 3]}>
             {/* Main B-2 Bomber Stealth Wing */}
             <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.075, 0]}>
                 <extrudeGeometry args={[b2Shape, extrudeSettings]} />
