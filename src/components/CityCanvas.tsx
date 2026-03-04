@@ -58,23 +58,23 @@ interface CityTheme {
 
 export const THEME: CityTheme = {
   sky: [
-    [0, "#000206"], [0.15, "#020814"], [0.30, "#061428"], [0.45, "#0c2040"],
-    [0.55, "#102850"], [0.65, "#0c2040"], [0.80, "#061020"], [1, "#020608"],
+    [0, "#020205"], [0.2, "#050610"], [0.4, "#0a0a1a"], [0.6, "#151525"],
+    [0.8, "#0a0a1a"], [1, "#020205"],
   ],
-  fogColor: "#0a1428", fogNear: 400, fogFar: 2500,
-  ambientColor: "#4060b0", ambientIntensity: 0.55,
-  sunColor: "#7090d0", sunIntensity: 0.75, sunPos: [300, 120, -200],
-  fillColor: "#304080", fillIntensity: 0.3, fillPos: [-200, 60, 200],
-  hemiSky: "#5080a0", hemiGround: "#202830", hemiIntensity: 0.5,
-  groundColor: "#242c38", grid1: "#344050", grid2: "#2c3848",
-  roadMarkingColor: "#8090a0",
-  sidewalkColor: "#484c58",
+  fogColor: "#050610", fogNear: 500, fogFar: 3000,
+  ambientColor: "#506090", ambientIntensity: 0.5,
+  sunColor: "#a0c0ff", sunIntensity: 1.2, sunPos: [500, 300, -400],
+  fillColor: "#403080", fillIntensity: 0.6, fillPos: [-300, 100, 300],
+  hemiSky: "#a0c0ff", hemiGround: "#050508", hemiIntensity: 0.6,
+  groundColor: "#06070a", grid1: "#12141a", grid2: "#0a0b10",
+  roadMarkingColor: "#252a35",
+  sidewalkColor: "#0d0f14",
   building: {
-    windowLit: ["#a0c0f0", "#80a0e0", "#6080c8", "#c0d8f8", "#e0e8ff"],
-    windowOff: "#0c0e18", face: "#101828", roof: "#2a3858",
-    accent: "#6090e0",
+    windowLit: ["#00f0ff", "#00d0ff", "#40a0ff", "#8040ff", "#b020ff"],
+    windowOff: "#030408", face: "#0a0c12", roof: "#151822",
+    accent: "#00f0ff",
   },
-  waterColor: "#0a1830", waterEmissive: "#0a2050", dockColor: "#3a2818",
+  waterColor: "#020408", waterEmissive: "#050815", dockColor: "#0a0b10",
 };
 
 // ─── Sky Dome ────────────────────────────────────────────────

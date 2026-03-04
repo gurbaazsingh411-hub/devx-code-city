@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Script from "next/script";
-import GlobalRadio from "@/components/GlobalRadio";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -94,7 +93,6 @@ export default function RootLayout({
       </head>
       <body className="bg-bg font-pixel text-warm" suppressHydrationWarning>
         {children}
-        <GlobalRadio />
         {process.env.NEXT_PUBLIC_HIMETRICA_API_KEY && (
           <>
             <Script
