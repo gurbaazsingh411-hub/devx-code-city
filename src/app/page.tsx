@@ -26,7 +26,6 @@ import { useLiveUsers } from "@/lib/useLiveUsers";
 import { useRaidSequence } from "@/lib/useRaidSequence";
 import RaidPreviewModal from "@/components/RaidPreviewModal";
 import RaidOverlay from "@/components/RaidOverlay";
-import PillModal from "@/components/PillModal";
 import FounderMessage from "@/components/FounderMessage";
 import DistrictChooser from "@/components/DistrictChooser";
 import LoadingScreen, { type LoadingStage } from "@/components/LoadingScreen";
@@ -57,9 +56,6 @@ const MILESTONE_MODE: "stars" | "devs" = "stars"; // "stars" = GitHub stars road
 
 const THEMES = [
   { name: "Midnight", accent: "#6090e0", shadow: "#203870" },
-  { name: "Sunset", accent: "#c8e64a", shadow: "#5a7a00" },
-  { name: "Neon", accent: "#e040c0", shadow: "#600860" },
-  { name: "Emerald", accent: "#f0c060", shadow: "#806020" },
 ];
 
 // Achievement display data for profile card (client-side, mirrors DB)
@@ -377,16 +373,7 @@ function HomeContent() {
   const [introMode, setIntroMode] = useState(false);
   const [introPhase, setIntroPhase] = useState(-1); // -1 = not started, 0-3 = text phases, 4 = done
   const [exploreMode, setExploreMode] = useState(false);
-  const [themeIndex, setThemeIndex] = useState(0);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const saved = localStorage.getItem("gitcity_theme");
-    if (saved !== null) {
-      const n = parseInt(saved, 10);
-      if (n >= 0 && n <= 3) setThemeIndex(n);
-    }
-  }, []);
+  const theme = THEMES[0];
 
 
   const [hud, setHud] = useState({ speed: 0, altitude: 0 });
@@ -437,7 +424,6 @@ function HomeContent() {
 
   const [starCount, setStarCount] = useState<number | null>(null);
   const [discordMembers, setDiscordMembers] = useState<number | null>(null);
-  const [pillModalOpen, setPillModalOpen] = useState(false);
   const [founderMessageOpen, setFounderMessageOpen] = useState(false);
   const [districtChooserOpen, setDistrictChooserOpen] = useState(false);
 
@@ -587,37 +573,6 @@ function HomeContent() {
       .catch(() => { });
   }, [sessionUserId]);
 
-  // Load theme from DB when logged in (overrides localStorage)
-  const themeLoadedFromDb = useRef(false);
-  useEffect(() => {
-    if (!sessionUserId || themeLoadedFromDb.current) return;
-    themeLoadedFromDb.current = true;
-    fetch("/api/preferences/theme")
-      .then((r) => r.ok ? r.json() : null)
-      .then((data) => {
-        if (data && typeof data.city_theme === "number" && data.city_theme >= 0 && data.city_theme <= 3) {
-          setThemeIndex(data.city_theme);
-          localStorage.setItem("gitcity_theme", String(data.city_theme));
-        }
-      })
-      .catch(() => { });
-  }, [sessionUserId]);
-
-  // Cycle theme: save to localStorage + sync to DB if logged in
-  const cycleTheme = useCallback(() => {
-    setThemeIndex((i) => {
-      const next = (i + 1) % THEMES.length;
-      localStorage.setItem("gitcity_theme", String(next));
-      if (sessionUserId) {
-        fetch("/api/preferences/theme", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ city_theme: next }),
-        }).catch(() => { });
-      }
-      return next;
-    });
-  }, [sessionUserId]);
 
   // Save ?ref= to localStorage (7-day expiry)
   useEffect(() => {
@@ -766,12 +721,12 @@ function HomeContent() {
   // Outside fly mode: compare → share modal → profile card → focus → explore mode
   useEffect(() => {
     if (flyMode && !selectedBuilding) return;
-    if (!flyMode && !exploreMode && !focusedBuilding && !shareData && !selectedBuilding && !giftClaimed && !giftModalOpen && !comparePair && !compareBuilding && !founderMessageOpen && !pillModalOpen && raidState.phase === "idle") return;
+    if (!flyMode && !exploreMode && !focusedBuilding && !shareData && !selectedBuilding && !giftClaimed && !giftModalOpen && !comparePair && !compareBuilding && !founderMessageOpen && raidState.phase === "idle") return;
     const onKey = (e: KeyboardEvent) => {
       if (e.code === "Escape") {
         // Founder modals take highest priority
         if (founderMessageOpen) { setFounderMessageOpen(false); return; }
-        if (pillModalOpen) { setPillModalOpen(false); return; }
+
         // Raid takes priority
         if (raidState.phase !== "idle") {
           if (raidState.phase === "preview") {
@@ -812,7 +767,7 @@ function HomeContent() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [flyMode, exploreMode, focusedBuilding, shareData, selectedBuilding, giftClaimed, giftModalOpen, comparePair, compareBuilding, founderMessageOpen, pillModalOpen, raidState.phase, raidActions]);
+  }, [flyMode, exploreMode, focusedBuilding, shareData, selectedBuilding, giftClaimed, giftModalOpen, comparePair, compareBuilding, founderMessageOpen, raidState.phase, raidActions]);
 
 
 
@@ -1475,7 +1430,7 @@ function HomeContent() {
           }
           setFlyMode(false); setFlyPaused(false); lastDistrictRef.current = null; setDistrictAnnouncement(null); clearTimeout(announceTimerRef.current);
         }}
-        themeIndex={themeIndex}
+        themeIndex={0}
         onHud={(s, a, x, z, yaw) => {
           setHud({ speed: s, altitude: a });
           // Look-ahead: ~40u ahead of airplane = center of screen
@@ -1533,7 +1488,7 @@ function HomeContent() {
         raidAttacker={raidState.attackerBuilding}
         raidDefender={raidState.defenderBuilding}
         onRaidPhaseComplete={raidActions.onPhaseComplete}
-        onLandmarkClick={() => { setPillModalOpen(true); setSelectedBuilding(null); }}
+        onLandmarkClick={() => { setFounderMessageOpen(true); setSelectedBuilding(null); }}
 
         onBuildingClick={(b) => {
           trackBuildingClicked(b.login);
@@ -3030,14 +2985,6 @@ function HomeContent() {
       {/* ─── Bottom-left controls: Theme + Radio (portal slot) + Intro ─── */}
       {!flyMode && !introMode && !exploreMode && (
         <div className="pointer-events-auto fixed bottom-10 left-3 z-[25] flex items-center gap-2 sm:left-4">
-          <button
-            onClick={cycleTheme}
-            className="btn-press flex items-center gap-1.5 border-[3px] border-border bg-bg/70 px-2.5 py-1 text-[10px] backdrop-blur-sm transition-colors hover:border-border-light"
-          >
-            <span style={{ color: theme.accent }}>&#9654;</span>
-            <span className="text-cream">{theme.name}</span>
-            <span className="text-dim">{themeIndex + 1}/{THEMES.length}</span>
-          </button>
           <div id="gc-radio-slot" />
           <button
             onClick={replayIntro}
@@ -3292,13 +3239,6 @@ function HomeContent() {
       )}
 
       {/* Founder's Landmark modals */}
-      <PillModal
-        isOpen={pillModalOpen}
-        onClose={() => {
-          setPillModalOpen(false);
-          setFounderMessageOpen(true);
-        }}
-      />
 
       {founderMessageOpen && (
         <FounderMessage onClose={() => setFounderMessageOpen(false)} />

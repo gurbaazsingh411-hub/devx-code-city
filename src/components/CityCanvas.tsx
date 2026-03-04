@@ -4,6 +4,7 @@ import { useRef, useEffect, useState, useMemo } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, useGLTF, Stats, PerformanceMonitor } from "@react-three/drei";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
+import { Clouds, Cloud } from "@react-three/drei";
 import * as THREE from "three";
 import CityScene from "./CityScene";
 import type { FocusInfo } from "./CityScene";
@@ -19,14 +20,6 @@ import CelebrationEffect from "./CelebrationEffect";
 import SuperAircraft from "./SuperAircraft";
 
 // ─── Theme Definitions ───────────────────────────────────────
-
-export const THEME_NAMES = [
-  "Modern",
-  "Midnight",
-  "Sunset",
-  "Neon",
-  "Emerald",
-] as const;
 
 export interface BuildingColors {
   windowLit: string[];
@@ -63,116 +56,26 @@ interface CityTheme {
   dockColor: string;
 }
 
-const THEMES: CityTheme[] = [
-  // 0 – Modern
-  {
-    sky: [
-      [0, "#02040a"], [0.2, "#050a18"], [0.4, "#0a1428"], [0.6, "#101a35"],
-      [0.8, "#050a18"], [1, "#010206"],
-    ],
-    fogColor: "#050812", fogNear: 600, fogFar: 3000,
-    ambientColor: "#5070a0", ambientIntensity: 0.6,
-    sunColor: "#ffffff", sunIntensity: 1.2, sunPos: [500, 300, -400],
-    fillColor: "#204080", fillIntensity: 0.5, fillPos: [-300, 100, 300],
-    hemiSky: "#80a0ff", hemiGround: "#0a0a10", hemiIntensity: 0.7,
-    groundColor: "#05050a", grid1: "#1a1a25", grid2: "#101018",
-    roadMarkingColor: "#405070",
-    sidewalkColor: "#151820",
-    building: {
-      windowLit: ["#70a0ff", "#4080ff", "#a0c0ff", "#ffffff"],
-      windowOff: "#020408", face: "#080c14", roof: "#1a2538",
-      accent: "#40a0ff",
-    },
-    waterColor: "#020610", waterEmissive: "#050a20", dockColor: "#101520",
+export const THEME: CityTheme = {
+  sky: [
+    [0, "#000206"], [0.15, "#020814"], [0.30, "#061428"], [0.45, "#0c2040"],
+    [0.55, "#102850"], [0.65, "#0c2040"], [0.80, "#061020"], [1, "#020608"],
+  ],
+  fogColor: "#0a1428", fogNear: 400, fogFar: 2500,
+  ambientColor: "#4060b0", ambientIntensity: 0.55,
+  sunColor: "#7090d0", sunIntensity: 0.75, sunPos: [300, 120, -200],
+  fillColor: "#304080", fillIntensity: 0.3, fillPos: [-200, 60, 200],
+  hemiSky: "#5080a0", hemiGround: "#202830", hemiIntensity: 0.5,
+  groundColor: "#242c38", grid1: "#344050", grid2: "#2c3848",
+  roadMarkingColor: "#8090a0",
+  sidewalkColor: "#484c58",
+  building: {
+    windowLit: ["#a0c0f0", "#80a0e0", "#6080c8", "#c0d8f8", "#e0e8ff"],
+    windowOff: "#0c0e18", face: "#101828", roof: "#2a3858",
+    accent: "#6090e0",
   },
-  // 1 – Midnight
-  {
-    sky: [
-      [0, "#000206"], [0.15, "#020814"], [0.30, "#061428"], [0.45, "#0c2040"],
-      [0.55, "#102850"], [0.65, "#0c2040"], [0.80, "#061020"], [1, "#020608"],
-    ],
-    fogColor: "#0a1428", fogNear: 400, fogFar: 2500,
-    ambientColor: "#4060b0", ambientIntensity: 0.55,
-    sunColor: "#7090d0", sunIntensity: 0.75, sunPos: [300, 120, -200],
-    fillColor: "#304080", fillIntensity: 0.3, fillPos: [-200, 60, 200],
-    hemiSky: "#5080a0", hemiGround: "#202830", hemiIntensity: 0.5,
-    groundColor: "#242c38", grid1: "#344050", grid2: "#2c3848",
-    roadMarkingColor: "#8090a0",
-    sidewalkColor: "#484c58",
-    building: {
-      windowLit: ["#a0c0f0", "#80a0e0", "#6080c8", "#c0d8f8", "#e0e8ff"],
-      windowOff: "#0c0e18", face: "#101828", roof: "#2a3858",
-      accent: "#6090e0",
-    },
-    waterColor: "#0a1830", waterEmissive: "#0a2050", dockColor: "#3a2818",
-  },
-  // 2 – Sunset
-  {
-    sky: [
-      [0, "#0c0614"], [0.15, "#1c0e30"], [0.28, "#3a1850"], [0.38, "#6a3060"],
-      [0.46, "#a05068"], [0.52, "#d07060"], [0.57, "#e89060"], [0.62, "#f0b070"],
-      [0.68, "#f0c888"], [0.75, "#c08060"], [0.85, "#603030"], [1, "#180c10"],
-    ],
-    fogColor: "#80405a", fogNear: 400, fogFar: 2500,
-    ambientColor: "#e0a080", ambientIntensity: 0.7,
-    sunColor: "#f0b070", sunIntensity: 1.0, sunPos: [400, 120, -300],
-    fillColor: "#6050a0", fillIntensity: 0.35, fillPos: [-200, 80, 200],
-    hemiSky: "#d09080", hemiGround: "#4a2828", hemiIntensity: 0.55,
-    groundColor: "#3a3038", grid1: "#504048", grid2: "#443838",
-    roadMarkingColor: "#d0a840",
-    sidewalkColor: "#585058",
-    building: {
-      windowLit: ["#f8d880", "#f0b860", "#e89840", "#d07830", "#f0c060"],
-      windowOff: "#1a1018", face: "#281828", roof: "#604050",
-      accent: "#c8e64a",
-    },
-    waterColor: "#1a2040", waterEmissive: "#102060", dockColor: "#4a3020",
-  },
-  // 3 – Neon
-  {
-    sky: [
-      [0, "#06001a"], [0.15, "#100028"], [0.30, "#200440"], [0.42, "#380650"],
-      [0.52, "#500860"], [0.60, "#380648"], [0.75, "#180230"], [0.90, "#0c0118"],
-      [1, "#06000c"],
-    ],
-    fogColor: "#1a0830", fogNear: 400, fogFar: 2500,
-    ambientColor: "#8040c0", ambientIntensity: 0.6,
-    sunColor: "#c050e0", sunIntensity: 0.85, sunPos: [300, 100, -200],
-    fillColor: "#00c0d0", fillIntensity: 0.4, fillPos: [-250, 60, 200],
-    hemiSky: "#9040d0", hemiGround: "#201028", hemiIntensity: 0.5,
-    groundColor: "#2c2038", grid1: "#3c2c50", grid2: "#342440",
-    roadMarkingColor: "#c060e0",
-    sidewalkColor: "#484058",
-    building: {
-      windowLit: ["#ff40c0", "#c040ff", "#00e0ff", "#40ff80", "#ff8040"],
-      windowOff: "#0a0814", face: "#180830", roof: "#3c1858",
-      accent: "#e040c0",
-    },
-    waterColor: "#0c0830", waterEmissive: "#1008a0", dockColor: "#2a1838",
-  },
-  // 4 – Emerald
-  {
-    sky: [
-      [0, "#000804"], [0.15, "#001408"], [0.30, "#002810"], [0.42, "#003c1c"],
-      [0.52, "#004828"], [0.60, "#003820"], [0.75, "#002014"], [0.90, "#001008"],
-      [1, "#000604"],
-    ],
-    fogColor: "#0a2014", fogNear: 400, fogFar: 2500,
-    ambientColor: "#40a060", ambientIntensity: 0.55,
-    sunColor: "#70d090", sunIntensity: 0.75, sunPos: [300, 100, -250],
-    fillColor: "#20a080", fillIntensity: 0.35, fillPos: [-200, 60, 200],
-    hemiSky: "#50b068", hemiGround: "#183020", hemiIntensity: 0.5,
-    groundColor: "#1e3020", grid1: "#2c4838", grid2: "#243828",
-    roadMarkingColor: "#60c080",
-    sidewalkColor: "#404848",
-    building: {
-      windowLit: ["#0e4429", "#006d32", "#26a641", "#39d353", "#c8e64a"],
-      windowOff: "#060e08", face: "#0c1810", roof: "#1e4028",
-      accent: "#f0c060",
-    },
-    waterColor: "#082018", waterEmissive: "#0a3020", dockColor: "#3a2818",
-  },
-];
+  waterColor: "#0a1830", waterEmissive: "#0a2050", dockColor: "#3a2818",
+};
 
 // ─── Sky Dome ────────────────────────────────────────────────
 
@@ -1747,7 +1650,6 @@ interface Props {
   flyVehicle?: string;
   onExitFly: () => void;
   onCollect?: (score: number, earned: number, combo: number, collected: number, maxCombo: number) => void;
-  themeIndex: number;
   onHud?: (speed: number, altitude: number, x: number, z: number, yaw: number) => void;
   onPause?: (paused: boolean) => void;
   focusedBuilding?: string | null;
@@ -1782,8 +1684,8 @@ function SceneController({ setEmissiveIntensity }: { setEmissiveIntensity: (i: n
 }
 
 
-export default function CityCanvas({ buildings, plazas, decorations, river, bridges, flyMode, flyVehicle, onExitFly, onCollect, themeIndex, onHud, onPause, focusedBuilding, focusedBuildingB, accentColor, onClearFocus, onBuildingClick, onFocusInfo, flyPauseSignal, flyHasOverlay, introMode, onIntroEnd, raidPhase, raidData, raidAttacker, raidDefender, onRaidPhaseComplete, onLandmarkClick, ghostPreviewLogin, holdRise, celebrationActive }: Props) {
-  const t = THEMES[themeIndex] ?? THEMES[0];
+export default function CityCanvas({ buildings, plazas, decorations, river, bridges, flyMode, flyVehicle, onExitFly, onCollect, onHud, onPause, focusedBuilding, focusedBuildingB, accentColor, onClearFocus, onBuildingClick, onFocusInfo, flyPauseSignal, flyHasOverlay, introMode, onIntroEnd, raidPhase, raidData, raidAttacker, raidDefender, onRaidPhaseComplete, onLandmarkClick, ghostPreviewLogin, holdRise, celebrationActive }: Props) {
+  const t = THEME;
   const showPerf = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("perf");
   const [dpr, setDpr] = useState(1);
   const [bloomEnabled, setBloomEnabled] = useState(false);
@@ -1812,14 +1714,18 @@ export default function CityCanvas({ buildings, plazas, decorations, river, brid
         onIncline={() => { setDpr(1.25); setBloomEnabled(true); }}
         onDecline={() => { setDpr(0.75); setBloomEnabled(false); }}
       />
-      <fog attach="fog" args={[t.fogColor, t.fogNear, t.fogFar]} key={`fog-${themeIndex}`} />
+      <fog attach="fog" args={[t.fogColor, t.fogNear, t.fogFar]} />
 
       <ambientLight intensity={t.ambientIntensity * 3} color={t.ambientColor} />
       <directionalLight position={t.sunPos} intensity={t.sunIntensity * 3.5} color={t.sunColor} />
       <directionalLight position={t.fillPos} intensity={t.fillIntensity * 3} color={t.fillColor} />
-      <hemisphereLight args={[t.hemiSky, t.hemiGround, t.hemiIntensity * 3.5]} key={`hemi-${themeIndex}`} />
+      <hemisphereLight args={[t.hemiSky, t.hemiGround, t.hemiIntensity * 3.5]} />
 
-      <SkyDome key={`sky-${themeIndex}`} stops={t.sky} />
+      <Clouds material={THREE.MeshBasicMaterial}>
+        <Cloud segments={40} bounds={[3000, 200, 3000]} volume={150} color="#304060" seed={1} position={[0, 450, 0]} opacity={0.3} speed={0.2} fade={100} />
+      </Clouds>
+
+      <SkyDome stops={t.sky} />
 
       {introMode && <IntroFlyover onEnd={onIntroEnd ?? (() => { })} />}
 
