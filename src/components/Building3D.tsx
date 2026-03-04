@@ -24,7 +24,8 @@ import {
   HologramRing,
   LightningAura,
   LEDBanner,
-import { StreakFlame } from "./BuildingEffects";
+  StreakFlame,
+} from "./BuildingEffects";
 
 // Shared constants
 const WHITE = new THREE.Color("#ffffff");

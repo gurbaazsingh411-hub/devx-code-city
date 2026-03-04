@@ -440,7 +440,6 @@ function HomeContent() {
   const [pillModalOpen, setPillModalOpen] = useState(false);
   const [founderMessageOpen, setFounderMessageOpen] = useState(false);
   const [districtChooserOpen, setDistrictChooserOpen] = useState(false);
-  const [pillModalOpen, setPillModalOpen] = useState(false);
 
   // Growth optimization (A1: sign-in prompt, A5: ad direct open)
   const buildingClickCountRef = useRef(0);
@@ -767,7 +766,7 @@ function HomeContent() {
   // Outside fly mode: compare → share modal → profile card → focus → explore mode
   useEffect(() => {
     if (flyMode && !selectedBuilding) return;
-    if (!flyMode && !exploreMode && !focusedBuilding && !shareData && !selectedBuilding && !giftClaimed && !giftModalOpen && !comparePair && !compareBuilding && !founderMessageOpen && !pillModalOpen && !rabbitCinematic && raidState.phase === "idle") return;
+    if (!flyMode && !exploreMode && !focusedBuilding && !shareData && !selectedBuilding && !giftClaimed && !giftModalOpen && !comparePair && !compareBuilding && !founderMessageOpen && !pillModalOpen && raidState.phase === "idle") return;
     const onKey = (e: KeyboardEvent) => {
       if (e.code === "Escape") {
         // Founder modals take highest priority
@@ -1535,7 +1534,7 @@ function HomeContent() {
         raidDefender={raidState.defenderBuilding}
         onRaidPhaseComplete={raidActions.onPhaseComplete}
         onLandmarkClick={() => { setPillModalOpen(true); setSelectedBuilding(null); }}
-        onLandmarkClick={() => { setPillModalOpen(true); setSelectedBuilding(null); }}
+
         onBuildingClick={(b) => {
           trackBuildingClicked(b.login);
           // A1: Sign-in prompt after 1 building click without session
@@ -1566,7 +1565,6 @@ function HomeContent() {
           setFocusedBuilding(b.login);
           setKudosSent(false);
           setKudosError(null);
-          lastDistRef.current = 999;
           setFocusDist(999);
           if (flyMode) {
             // Auto-pause flight to show profile card
@@ -1884,7 +1882,7 @@ function HomeContent() {
       {/* Shop & Auth moved to center buttons area */}
 
       {/* ─── GitHub Badge (mobile: top-center, desktop: top-right) ─── */}
-      {!flyMode && !introMode && !rabbitCinematic && (
+      {!flyMode && !introMode && (
         <div className={`pointer-events-auto fixed top-3 left-1/2 z-30 -translate-x-1/2 items-center gap-2 sm:left-auto sm:right-4 sm:top-4 sm:translate-x-0 ${exploreMode ? "hidden lg:flex" : "flex"}`}>
           {liveStatus !== "error" && (
             <div className="flex items-center gap-1.5 border-[3px] border-border bg-bg/70 px-2.5 py-1 text-[10px] backdrop-blur-sm">
@@ -1897,7 +1895,7 @@ function HomeContent() {
       )}
 
       {/* ─── Main UI Overlay ─── */}
-      {!flyMode && !exploreMode && !introMode && !rabbitCinematic && (
+      {!flyMode && !exploreMode && !introMode && (
         <div
           className="pointer-events-none fixed inset-0 z-20 flex flex-col items-center justify-between pt-12 pb-4 px-3 sm:py-8 sm:px-4"
           style={{
@@ -3030,7 +3028,7 @@ function HomeContent() {
 
 
       {/* ─── Bottom-left controls: Theme + Radio (portal slot) + Intro ─── */}
-      {!flyMode && !introMode && !rabbitCinematic && !exploreMode && (
+      {!flyMode && !introMode && !exploreMode && (
         <div className="pointer-events-auto fixed bottom-10 left-3 z-[25] flex items-center gap-2 sm:left-4">
           <button
             onClick={cycleTheme}
@@ -3054,7 +3052,7 @@ function HomeContent() {
 
 
       {/* ─── Activity Ticker ─── */}
-      {!flyMode && !introMode && !rabbitCinematic && feedEvents.length >= 1 && (
+      {!flyMode && !introMode && feedEvents.length >= 1 && (
         <ActivityTicker
           events={feedEvents}
           onEventClick={(evt) => {
