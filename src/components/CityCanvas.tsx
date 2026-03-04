@@ -640,9 +640,7 @@ function AirplaneFlight({ onExit, onHud, onPause, pauseSignal = 0, hasOverlay = 
   return (
     <>
       <group ref={ref}>
-        <group scale={[4, 4, 4]}>
-          <VehicleMesh type={vehicleType} />
-        </group>
+        <SuperAircraft />
         <pointLight position={[0, -2, 0]} color="#f0c870" intensity={15} distance={60} />
         <pointLight position={[0, 3, -4]} color="#ffffff" intensity={5} distance={30} />
       </group>
