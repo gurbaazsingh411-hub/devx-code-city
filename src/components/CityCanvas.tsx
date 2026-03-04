@@ -1661,7 +1661,7 @@ function Waterfront({ river, dockColor }: { river: CityRiver; dockColor: string 
     let di = 0;
     let bi = 0;
     const geos: any[] = [];
-    const color = new THREE.Color(THEME.accent);
+    const color = new THREE.Color(dockColor);
     const pos = new THREE.Vector3();
     const q = new THREE.Quaternion();
     const s = new THREE.Vector3(1, 1, 1);
