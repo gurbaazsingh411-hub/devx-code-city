@@ -40,7 +40,7 @@ const ActiveBuildingEffects = memo(function ActiveBuildingEffects({
       />
       {isGhostTarget && (
         ghostEffectId === 0
-          ? <NeonOutline width={building.width} height={building.height} depth={building.depth} color={accentColor} emissiveIntensity={emissiveIntensity} />
+          ? <NeonOutline width={building.width} height={building.height} depth={building.depth} color={accentColor} />
           : ghostEffectId === 1
             ? <ParticleAura width={building.width} height={building.height} depth={building.depth} color={accentColor} emissiveIntensity={emissiveIntensity} />
             : <SpotlightEffect height={building.height} width={building.width} depth={building.depth} color={accentColor} />
@@ -107,6 +107,7 @@ interface EffectsLayerProps {
   introMode?: boolean;
   flyMode?: boolean;
   ghostPreviewLogin?: string | null;
+  emissiveIntensity?: number;
 }
 
 export default function EffectsLayer({
@@ -120,6 +121,7 @@ export default function EffectsLayer({
   introMode,
   flyMode,
   ghostPreviewLogin,
+  emissiveIntensity = 1.0,
 }: EffectsLayerProps) {
   const lastUpdate = useRef(-1);
   const activeSetRef = useRef(new Set<number>());
