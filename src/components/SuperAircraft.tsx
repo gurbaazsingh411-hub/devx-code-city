@@ -50,8 +50,8 @@ export default function SuperAircraft() {
             </mesh>
 
             {/* Cockpit / Nose */}
-            <mesh position={[2.2, 0, 0]}>
-                <coneGeometry args={[0.5, 1.5, 4]} rotation={[0, 0, -Math.PI / 2]} />
+            <mesh position={[2.2, 0, 0]} rotation={[0, 0, -Math.PI / 2]}>
+                <coneGeometry args={[0.5, 1.5, 4]} />
                 <meshStandardMaterial color="#0af" emissive="#0af" emissiveIntensity={2} />
             </mesh>
 
@@ -73,12 +73,12 @@ export default function SuperAircraft() {
 
             {/* Rear Thrusters */}
             <group ref={thrustersRef} position={[-2.2, 0, 0]}>
-                <mesh position={[0, 0, 0.4]}>
-                    <cylinderGeometry args={[0.3, 0.4, 0.6, 8]} rotation={[0, 0, Math.PI / 2]} />
+                <mesh position={[0, 0, 0.4]} rotation={[0, 0, Math.PI / 2]}>
+                    <cylinderGeometry args={[0.3, 0.4, 0.6, 8]} />
                     <meshStandardMaterial color="#ff4400" emissive="#ff4400" emissiveIntensity={10} />
                 </mesh>
-                <mesh position={[0, 0, -0.4]}>
-                    <cylinderGeometry args={[0.3, 0.4, 0.6, 8]} rotation={[0, 0, Math.PI / 2]} />
+                <mesh position={[0, 0, -0.4]} rotation={[0, 0, Math.PI / 2]}>
+                    <cylinderGeometry args={[0.3, 0.4, 0.6, 8]} />
                     <meshStandardMaterial color="#ff4400" emissive="#ff4400" emissiveIntensity={10} />
                 </mesh>
             </group>
