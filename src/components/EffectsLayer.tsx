@@ -43,7 +43,7 @@ const ActiveBuildingEffects = memo(function ActiveBuildingEffects({
           ? <NeonOutline width={building.width} height={building.height} depth={building.depth} color={accentColor} emissiveIntensity={emissiveIntensity} />
           : ghostEffectId === 1
             ? <ParticleAura width={building.width} height={building.height} depth={building.depth} color={accentColor} emissiveIntensity={emissiveIntensity} />
-            : <SpotlightEffect height={building.height} width={building.width} depth={building.depth} color={accentColor} emissiveIntensity={emissiveIntensity} />
+            : <SpotlightEffect height={building.height} width={building.width} depth={building.depth} color={accentColor} />
       )}
       {building.app_streak > 0 && (
         <StreakFlame height={building.height} width={building.width} depth={building.depth} streakDays={building.app_streak} color={accentColor} emissiveIntensity={emissiveIntensity} />
@@ -182,7 +182,7 @@ export default function EffectsLayer({
       const b = buildings[idx];
 
       // Only buildings that have something to render
-      const hasEffects = b.claimed || (b.owned_items && b.owned_items.length > 0) || (b.app_streak > 0) || !!b.active_raid_tag || b.rabbit_completed;
+      const hasEffects = b.claimed || (b.owned_items && b.owned_items.length > 0) || (b.app_streak > 0) || !!b.active_raid_tag;
       if (!hasEffects) continue;
 
       const dx = cx - b.position[0];

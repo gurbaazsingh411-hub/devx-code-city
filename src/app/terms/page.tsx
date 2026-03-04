@@ -2,8 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Terms of Service - Git City",
-  description: "Terms of Service for Git City.",
+  title: "Terms of Service - DevX GitHub City",
+  description: "Terms of Service for DevX GitHub City.",
 };
 
 const ACCENT = "#c8e64a";
@@ -29,8 +29,8 @@ export default function TermsPage() {
         <div className="mt-8 flex flex-col gap-5">
           <Section n={1} title="The Service">
             <p>
-              Git City is a web application that visualizes GitHub profiles as 3D
-              buildings in a virtual city. By using Git City, you agree to these
+              DevX GitHub City is a web application that visualizes GitHub profiles as 3D
+              buildings in a virtual city. By using DevX GitHub City, you agree to these
               terms.
             </p>
           </Section>
@@ -53,7 +53,7 @@ export default function TermsPage() {
             <p>You agree not to:</p>
             <ul className="mt-1 flex flex-col gap-1">
               <Li>Abuse, exploit, or attempt to disrupt the service</Li>
-              <Li>Scrape or collect data from Git City without permission</Li>
+              <Li>Scrape or collect data from DevX GitHub City without permission</Li>
               <Li>Use automated systems to create fake accounts or inflate metrics</Li>
               <Li>Impersonate other users or misrepresent your identity</Li>
             </ul>
@@ -69,7 +69,7 @@ export default function TermsPage() {
 
           <Section n={5} title="Purchases & Shop">
             <p>
-              Git City offers optional cosmetic items for purchase. All purchases
+              DevX GitHub City offers optional cosmetic items for purchase. All purchases
               are final and non-refundable unless required by applicable law.
               Cosmetic items have no real-world value and exist only within Git
               City.
@@ -78,7 +78,7 @@ export default function TermsPage() {
 
           <Section n={6} title="Disclaimer of Warranties">
             <p>
-              Git City is provided &quot;as is&quot; and &quot;as
+              DevX GitHub City is provided &quot;as is&quot; and &quot;as
               available&quot; without warranties of any kind, express or implied.
               We do not guarantee uptime, accuracy of data, or uninterrupted
               access. GitHub API limitations or outages may affect the service.
@@ -87,7 +87,7 @@ export default function TermsPage() {
 
           <Section n={7} title="Limitation of Liability">
             <p>
-              To the maximum extent permitted by law, DevX and Git City
+              To the maximum extent permitted by law, DevX and DevX GitHub City
               shall not be liable for any indirect, incidental, special, or
               consequential damages arising from your use of the service.
             </p>
@@ -96,7 +96,7 @@ export default function TermsPage() {
           <Section n={8} title="Third-Party Token">
             <p>
               A token called $GITC exists on the Base blockchain. This token was
-              created by the community, not by Git City or DevX. We do
+              created by the community, not by DevX GitHub City or DevX. We do
               not control, manage, or endorse the token. Any interaction with the
               token is entirely at your own risk. See the{" "}
               <a
@@ -112,7 +112,7 @@ export default function TermsPage() {
 
           <Section n={9} title="Changes to Terms">
             <p>
-              We may update these terms at any time. Continued use of Git City
+              We may update these terms at any time. Continued use of DevX GitHub City
               after changes constitutes acceptance of the updated terms.
             </p>
           </Section>

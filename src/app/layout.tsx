@@ -10,7 +10,7 @@ export const metadata: Metadata = {
       ? `https://${process.env.VERCEL_URL}`
       : "http://localhost:3000")
   ),
-  title: "Git City - Your GitHub as a 3D City",
+  title: "DevX GitHub City - Your GitHub as a 3D City",
   description:
     "Explore GitHub users as buildings in a 3D pixel art city. Fly through the city and discover developers.",
   keywords: [
@@ -23,10 +23,10 @@ export const metadata: Metadata = {
     "git visualization",
   ],
   openGraph: {
-    title: "Git City - Your GitHub as a 3D City",
+    title: "DevX GitHub City - Your GitHub as a 3D City",
     description:
       "Explore GitHub users as buildings in a 3D pixel art city. Fly through the city and discover developers.",
-    siteName: "Git City",
+    siteName: "DevX GitHub City",
     type: "website",
     locale: "en_US",
   },
@@ -51,7 +51,7 @@ const BASE_URL =
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  name: "Git City",
+  name: "DevX GitHub City",
   description:
     "Your GitHub profile as a 3D pixel art building in an interactive city",
   url: BASE_URL,

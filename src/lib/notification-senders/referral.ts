@@ -14,12 +14,12 @@ export function sendReferralJoinedNotification(
     category: "social",
     developerId: referrerId,
     dedupKey: `referral:${referrerId}:${referredId}`,
-    title: `Your referral @${referredLogin} just joined Git City!`,
-    body: `@${referredLogin} joined Git City through your referral link.`,
+    title: `Your referral @${referredLogin} just joined DevX GitHub City!`,
+    body: `@${referredLogin} joined DevX GitHub City through your referral link.`,
     html: `
       <p style="color: #c8e64a; font-size: 16px;">Your referral joined!</p>
       <p style="color: #e0d8cc;">
-        <strong>@${referredLogin}</strong> just claimed their building in Git City
+        <strong>@${referredLogin}</strong> just claimed their building in DevX GitHub City
         through your referral link.
       </p>
       <p style="color: #666; font-size: 13px;">

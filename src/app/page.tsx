@@ -28,7 +28,6 @@ import RaidPreviewModal from "@/components/RaidPreviewModal";
 import RaidOverlay from "@/components/RaidOverlay";
 import PillModal from "@/components/PillModal";
 import FounderMessage from "@/components/FounderMessage";
-import RabbitCompletion from "@/components/RabbitCompletion";
 import DistrictChooser from "@/components/DistrictChooser";
 import LoadingScreen, { type LoadingStage } from "@/components/LoadingScreen";
 import MiniMap from "@/components/MiniMap";
@@ -80,7 +79,6 @@ const ACHIEVEMENT_TIERS_MAP: Record<string, string> = {
   dedicated: "silver",
   obsessed: "gold",
   no_life: "diamond",
-  white_rabbit: "diamond",
 };
 const ACHIEVEMENT_NAMES_MAP: Record<string, string> = {
   god_mode: "God Mode", legend: "Legend", famous: "Famous", mayor: "Mayor",
@@ -92,7 +90,6 @@ const ACHIEVEMENT_NAMES_MAP: Record<string, string> = {
   legendary: "Legendary", admired: "Admired", appreciated: "Appreciated",
   on_fire: "On Fire", dedicated: "Dedicated", obsessed: "Obsessed",
   no_life: "No Life", generous_streak: "Generous Streak",
-  white_rabbit: "White Rabbit",
 };
 
 // Dev "class" — funny RPG-style title, deterministic per username
@@ -161,7 +158,7 @@ const ERROR_MESSAGES: Record<string, { primary: (u: string) => string; secondary
   },
   "org": {
     primary: (u) => `"@${u}" is an organization, not a person`,
-    secondary: "Git City is for individual profiles. Try searching for one of its contributors by their personal username.",
+    secondary: "DevX GitHub City is for individual profiles. Try searching for one of its contributors by their personal username.",
   },
   "no-activity": {
     primary: (u) => `"@${u}" has no public activity yet`,
@@ -443,16 +440,7 @@ function HomeContent() {
   const [pillModalOpen, setPillModalOpen] = useState(false);
   const [founderMessageOpen, setFounderMessageOpen] = useState(false);
   const [districtChooserOpen, setDistrictChooserOpen] = useState(false);
-  const [rabbitCinematic, setRabbitCinematic] = useState(false);
-  const [rabbitCinematicPhase, setRabbitCinematicPhase] = useState(-1);
-  const [rabbitProgress, setRabbitProgress] = useState(0);
-  useEffect(() => {
-    const saved = parseInt(localStorage.getItem("gitcity_rabbit_progress") ?? "0", 10) || 0;
-    if (saved > 0) setRabbitProgress(saved);
-  }, []);
-  const [rabbitSighting, setRabbitSighting] = useState<number | null>(null);
-  const [rabbitCompletion, setRabbitCompletion] = useState(false);
-  const [rabbitHintFlash, setRabbitHintFlash] = useState<string | null>(null);
+  const [pillModalOpen, setPillModalOpen] = useState(false);
 
   // Growth optimization (A1: sign-in prompt, A5: ad direct open)
   const buildingClickCountRef = useRef(0);
@@ -773,12 +761,6 @@ function HomeContent() {
     finally { setGiftBuying(null); }
   }, [selectedBuilding, giftBuying]);
 
-  const lastDistRef = useRef(999);
-
-  const endRabbitCinematic = useCallback(() => {
-    setRabbitCinematic(false);
-    setRabbitCinematicPhase(-1);
-  }, []);
 
   // ESC: layered dismissal
   // During fly mode: only close overlays (profile card) — AirplaneFlight handles pause/exit
@@ -791,8 +773,6 @@ function HomeContent() {
         // Founder modals take highest priority
         if (founderMessageOpen) { setFounderMessageOpen(false); return; }
         if (pillModalOpen) { setPillModalOpen(false); return; }
-        // Rabbit cinematic
-        if (rabbitCinematic) { endRabbitCinematic(); return; }
         // Raid takes priority
         if (raidState.phase !== "idle") {
           if (raidState.phase === "preview") {
@@ -833,114 +813,9 @@ function HomeContent() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [flyMode, exploreMode, focusedBuilding, shareData, selectedBuilding, giftClaimed, giftModalOpen, comparePair, compareBuilding, founderMessageOpen, pillModalOpen, rabbitCinematic, endRabbitCinematic, raidState.phase, raidActions]);
+  }, [flyMode, exploreMode, focusedBuilding, shareData, selectedBuilding, giftClaimed, giftModalOpen, comparePair, compareBuilding, founderMessageOpen, pillModalOpen, raidState.phase, raidActions]);
 
-  // Rabbit cinematic text phase timing (8s total flyover)
-  useEffect(() => {
-    if (!rabbitCinematic) {
-      setRabbitCinematicPhase(-1);
-      return;
-    }
-    const timers: ReturnType<typeof setTimeout>[] = [];
-    // Phase 0: "Follow the white rabbit..." at 0.5s
-    timers.push(setTimeout(() => setRabbitCinematicPhase(0), 500));
-    // Phase 1: "It hides among the plazas..." at 4.0s
-    timers.push(setTimeout(() => setRabbitCinematicPhase(1), 4000));
-    return () => timers.forEach(clearTimeout);
-  }, [rabbitCinematic]);
 
-  // Fetch rabbit progress on login — sync local progress to server
-  useEffect(() => {
-    if (!session) return;
-    (async () => {
-      try {
-        const res = await fetch("/api/rabbit?check=true");
-        if (!res.ok) return;
-        const data = await res.json();
-        const serverProgress = data?.progress ?? 0;
-        const localProgress = parseInt(localStorage.getItem("gitcity_rabbit_progress") ?? "0", 10) || 0;
-
-        // Sync local progress to server if ahead (silently fails if no claimed building)
-        if (localProgress > serverProgress) {
-          for (let s = serverProgress + 1; s <= localProgress; s++) {
-            const sr = await fetch("/api/rabbit", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ sighting: s }),
-            });
-            if (!sr.ok) break; // stop sync if server rejects (e.g. no claimed building)
-          }
-        }
-
-        const best = Math.max(serverProgress, localProgress);
-        setRabbitProgress(best);
-        localStorage.setItem("gitcity_rabbit_progress", String(best));
-        if (best > 0 && best < 5) {
-          setRabbitSighting(best + 1);
-        }
-        if (best >= 5 && serverProgress < 5 && localProgress >= 5) {
-          setRabbitCompletion(true);
-        }
-      } catch { }
-    })();
-  }, [session]);
-
-  // Auto-dismiss rabbit hint flash
-  useEffect(() => {
-    if (!rabbitHintFlash) return;
-    const t = setTimeout(() => setRabbitHintFlash(null), 3000);
-    return () => clearTimeout(t);
-  }, [rabbitHintFlash]);
-
-  // Handle rabbit caught
-  const onRabbitCaught = useCallback(async () => {
-    if (!rabbitSighting) return;
-    const sighting = rabbitSighting;
-    setRabbitSighting(null);
-
-    // Try to save to API (works when logged in + has claimed building)
-    const login = (session?.user?.user_metadata?.user_name ?? "").toLowerCase();
-    const claimed = login && buildings.some((b) => b.login.toLowerCase() === login && b.claimed);
-    if (session && claimed) {
-      try {
-        const res = await fetch("/api/rabbit", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sighting }),
-        });
-        const data = await res.json();
-        if (res.ok) {
-          setRabbitProgress(data.progress);
-          localStorage.setItem("gitcity_rabbit_progress", String(data.progress));
-
-          if (data.completed) {
-            setRabbitCompletion(true);
-            return;
-          }
-          setRabbitHintFlash("The rabbit moves deeper...");
-          setTimeout(() => setRabbitSighting(data.progress + 1), 2000);
-          return;
-        }
-      } catch {
-        // Fall through to local tracking
-      }
-    }
-
-    // Local tracking (not logged in or API failed)
-    const newProgress = sighting;
-    setRabbitProgress(newProgress);
-    localStorage.setItem("gitcity_rabbit_progress", String(newProgress));
-
-    if (sighting >= 5) {
-      // Final sighting: need login to save achievement
-      handleSignInWithRef();
-      return;
-    }
-
-    // Sightings 1-4: advance locally
-    setRabbitHintFlash("The rabbit moves deeper...");
-    setTimeout(() => setRabbitSighting(newProgress + 1), 2000);
-  }, [rabbitSighting, session, buildings, handleSignInWithRef]);
 
   const reloadCity = useCallback(async (bustCache = false) => {
     if (bustCache) clearCityCache();
@@ -1660,11 +1535,7 @@ function HomeContent() {
         raidDefender={raidState.defenderBuilding}
         onRaidPhaseComplete={raidActions.onPhaseComplete}
         onLandmarkClick={() => { setPillModalOpen(true); setSelectedBuilding(null); }}
-        rabbitSighting={rabbitSighting}
-        onRabbitCaught={onRabbitCaught}
-        rabbitCinematic={rabbitCinematic}
-        onRabbitCinematicEnd={endRabbitCinematic}
-        rabbitCinematicTarget={rabbitSighting ?? undefined}
+        onLandmarkClick={() => { setPillModalOpen(true); setSelectedBuilding(null); }}
         onBuildingClick={(b) => {
           trackBuildingClicked(b.login);
           // A1: Sign-in prompt after 1 building click without session
@@ -1767,7 +1638,7 @@ function HomeContent() {
                 style={{ fontSize: "clamp(1.2rem, 5vw, 2.8rem)" }}
               >
                 Welcome to{" "}
-                <span style={{ color: theme.accent }}>Git City</span>
+                <span style={{ color: theme.accent }}>DevX GitHub City</span>
               </p>
             </div>
           </div>
@@ -2943,7 +2814,7 @@ function HomeContent() {
                 <div className="px-4 pt-3 pb-1 flex gap-2">
                   <a
                     href={`https://x.com/intent/tweet?text=${encodeURIComponent(
-                      `I just compared my building with ${comparePair[1].login}'s in Git City. It wasn't even close. What's yours?`
+                      `I just compared my building with ${comparePair[1].login}'s in DevX GitHub City. It wasn't even close. What's yours?`
                     )}&url=${encodeURIComponent(
                       `${typeof window !== "undefined" ? window.location.origin : ""}/compare/${comparePair[0].login}/${comparePair[1].login}`
                     )}`}
@@ -3423,113 +3294,19 @@ function HomeContent() {
       )}
 
       {/* Founder's Landmark modals */}
-      {pillModalOpen && (
-        <PillModal
-          rabbitCompleted={rabbitProgress >= 5}
-          onRedPill={() => {
-            setPillModalOpen(false);
-            setFounderMessageOpen(true);
-          }}
-          onBluePill={() => {
-            setPillModalOpen(false);
-            if (rabbitProgress >= 5) return;
-            setRabbitSighting(rabbitProgress + 1);
-            setRabbitCinematic(true);
-          }}
-          onClose={() => setPillModalOpen(false)}
-        />
-      )}
+      <PillModal
+        isOpen={pillModalOpen}
+        onClose={() => {
+          setPillModalOpen(false);
+          setFounderMessageOpen(true);
+        }}
+      />
+
       {founderMessageOpen && (
         <FounderMessage onClose={() => setFounderMessageOpen(false)} />
       )}
 
-      {/* Rabbit Quest Cinematic Overlay */}
-      {rabbitCinematic && (
-        <div className="fixed inset-0 z-50 pointer-events-none">
-          {/* Letterbox bars */}
-          <div
-            className="absolute inset-x-0 top-0 origin-top bg-black/80 transition-transform duration-700"
-            style={{ height: "12%", transform: rabbitCinematicPhase >= 0 ? "scaleY(1)" : "scaleY(0)" }}
-          />
-          <div
-            className="absolute inset-x-0 bottom-0 origin-bottom bg-black/80 transition-transform duration-700"
-            style={{ height: "18%", transform: rabbitCinematicPhase >= 0 ? "scaleY(1)" : "scaleY(0)" }}
-          />
 
-          {/* CRT scanlines */}
-          <div
-            className="absolute inset-0 opacity-[0.04]"
-            style={{
-              backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 1px, rgba(0,255,65,0.08) 1px, rgba(0,255,65,0.08) 2px)",
-              backgroundSize: "100% 2px",
-            }}
-          />
-
-          {/* Text in lower bar */}
-          <div className="absolute inset-x-0 bottom-0 flex items-center justify-center" style={{ height: "18%" }}>
-            {["Follow the white rabbit...", "It hides among the plazas..."].map((text, i) => (
-              <p
-                key={i}
-                className="absolute text-center font-pixel normal-case px-4"
-                style={{
-                  fontSize: "clamp(0.85rem, 3vw, 1.5rem)",
-                  letterSpacing: "0.08em",
-                  color: "#00ff41",
-                  textShadow: "0 0 20px rgba(0,255,65,0.5), 0 0 40px rgba(0,255,65,0.2)",
-                  opacity: rabbitCinematicPhase === i ? 1 : 0,
-                  transition: "opacity 0.7s ease-in-out",
-                }}
-              >
-                {text}
-              </p>
-            ))}
-          </div>
-
-          {/* Skip button */}
-          <button
-            className="pointer-events-auto absolute top-4 right-4 z-[60] font-pixel text-[10px] sm:text-[12px] tracking-wider border border-[#00ff41]/40 px-3 py-1.5 transition-colors hover:bg-[#00ff41]/10"
-            style={{
-              color: "#00ff41",
-              textShadow: "0 0 8px rgba(0,255,65,0.3)",
-            }}
-            onClick={endRabbitCinematic}
-          >
-            SKIP
-          </button>
-        </div>
-      )}
-
-      {/* Rabbit hint flash ("The rabbit moves deeper...") */}
-      {rabbitHintFlash && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
-          style={{ animation: "rabbitHintAnim 3s ease-in-out forwards" }}
-        >
-          <div className="absolute inset-0 bg-black/60" />
-          <p
-            className="relative font-pixel text-[14px] sm:text-[16px] tracking-widest text-center px-4"
-            style={{
-              color: "#00ff41",
-              textShadow: "0 0 15px rgba(0,255,65,0.5), 0 0 30px rgba(0,255,65,0.2)",
-            }}
-          >
-            {rabbitHintFlash}
-          </p>
-          <style jsx>{`
-            @keyframes rabbitHintAnim {
-              0% { opacity: 0; }
-              15% { opacity: 1; }
-              70% { opacity: 1; }
-              100% { opacity: 0; }
-            }
-          `}</style>
-        </div>
-      )}
-
-      {/* Rabbit completion cinematic */}
-      {rabbitCompletion && (
-        <RabbitCompletion onComplete={() => setRabbitCompletion(false)} />
-      )}
 
     </main>
   );

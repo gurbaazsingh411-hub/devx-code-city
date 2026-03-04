@@ -157,13 +157,13 @@ export default function RoadmapClient({
           <p className="mt-6 text-[9px] text-muted normal-case">
             built by{" "}
             <a
-              href="https://x.com/samuelrizzondev"
+              href="https://github.com/gurbaazsingh411-hub"
               target="_blank"
               rel="noopener noreferrer"
               className="transition-colors hover:text-cream"
               style={{ color: ACCENT }}
             >
-              @samuelrizzondev
+              Gurbaaz Singh — DevX GTBIT
             </a>
           </p>
         </div>
@@ -201,9 +201,9 @@ function PhaseBlock({
           borderColor: cfg.border,
           ...(isBuilding
             ? {
-                animation: "pulse-node 2s ease-in-out infinite",
-                boxShadow: `0 0 12px ${ACCENT}44`,
-              }
+              animation: "pulse-node 2s ease-in-out infinite",
+              boxShadow: `0 0 12px ${ACCENT}44`,
+            }
             : {}),
         }}
       />

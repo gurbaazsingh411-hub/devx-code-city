@@ -69,7 +69,6 @@ export interface CityBuilding {
   current_week_kudos_given: number;
   current_week_kudos_received: number;
   active_raid_tag?: { attacker_login: string; tag_style: string; expires_at: string } | null;
-  rabbit_completed: boolean;
   district?: string;
   district_chosen?: boolean;
   position: [number, number, number];
@@ -206,12 +205,12 @@ function calcHeightV2(
   const cnsScore = Math.pow(consistencyNorm, 0.6);
 
   const composite =
-    cScore  * 0.35 +
-    sScore  * 0.20 +
+    cScore * 0.35 +
+    sScore * 0.20 +
     prScore * 0.15 +
     extScore * 0.10 +
     cnsScore * 0.10 +
-    fScore  * 0.10;
+    fScore * 0.10;
 
   const height = Math.min(MAX_BUILDING_HEIGHT, MIN_BUILDING_HEIGHT + composite * HEIGHT_RANGE);
   return { height, composite };
@@ -520,7 +519,6 @@ export function generateCityLayout(devs: DeveloperRecord[]): {
         current_week_kudos_given: (dev as unknown as Record<string, unknown>).current_week_kudos_given as number ?? 0,
         current_week_kudos_received: (dev as unknown as Record<string, unknown>).current_week_kudos_received as number ?? 0,
         active_raid_tag: (dev as unknown as Record<string, unknown>).active_raid_tag as CityBuilding["active_raid_tag"] ?? null,
-        rabbit_completed: (dev as unknown as Record<string, unknown>).rabbit_completed as boolean ?? false,
         district: did,
         district_chosen: (dev as unknown as Record<string, unknown>).district_chosen as boolean ?? false,
         position: [posX, 0, posZ],

@@ -12,35 +12,37 @@ const MESSAGES: Record<Lang, string[]> = {
   en: [
     "You chose the truth. Good choice.",
     "Everything you see here... the buildings, the lights, the streets... it's code. Every pixel, every lit window, every shadow. It's all a simulation. But you already knew that.",
-    "What you might not know is that behind this entire city, there's a single dev. A guy who decided to build this alone, because he could.",
-    "Git City was born on a weekend. The idea was simple: what if we stopped looking at green squares on a chart and started seeing what they really are? People. Building things. Every day.",
-    "In one week, over 6,000 devs showed up. 6,000 buildings in a city that didn't exist 7 days before. You built this. I just turned on the signal.",
-    "This antenna you clicked? It's real. It transmits Git City. And keeping this signal on the air costs. Servers, database, API calls... every new building that goes up, the cost goes up with it.",
-    "If Git City means something to you, help me keep the signal on. Any support keeps this city alive.",
+    "What you might not know is that behind this entire city, there's a vision. A project born from the desire to visualize our collective impact.",
+    "DevX github city was born on a weekend. The idea was simple: what if we stopped looking at green squares on a chart and started seeing what they really are? People. Building things. Every day.",
+    "This city was brought to life by Gurbaaz Singh, President of DevX GTBIT. It stands as a testament to the power of our developer community.",
+    "In one week, over 6,000 devs showed up. 6,000 buildings in a city that didn't exist 7 days before. You built this. We just turned on the signal.",
+    "This antenna you clicked? It's real. It transmits DevX github city. And keeping this signal on the air costs. Servers, database, API calls... every new building that goes up, the cost goes up with it.",
+    "If DevX github city means something to you, help us keep the signal on. Any support keeps this city alive.",
     "Thank you for being here. Thank you for building. The city is yours.",
     "See you on the streets.",
   ],
   pt: [
-    "Voce escolheu a verdade. Boa escolha.",
-    "Tudo que voce ve aqui... os predios, as luzes, as ruas... e codigo. Cada pixel, cada janela acesa, cada sombra. E tudo uma simulacao. Mas voce ja sabia disso.",
-    "O que voce talvez nao saiba e que por tras dessa cidade inteira, existe um unico dev. Um cara que decidiu construir isso sozinho, porque podia.",
-    "A Git City nasceu num final de semana. A ideia era simples: e se a gente parasse de olhar pra quadrados verdes num grafico e comecasse a ver o que eles realmente sao? Pessoas. Construindo coisas. Todo dia.",
-    "Em uma semana, mais de 6.000 devs apareceram. 6.000 predios numa cidade que nao existia 7 dias antes. Voces construiram isso. Eu so liguei o sinal.",
-    "Essa antena que voce clicou? E real. Ela transmite a Git City. E manter esse sinal no ar custa. Servidores, banco de dados, API calls... cada novo predio que sobe, o custo sobe junto.",
-    "Se a Git City significa algo pra voce, me ajuda a manter o sinal ligado. Qualquer apoio mantem essa cidade viva.",
-    "Obrigado por estar aqui. Obrigado por construir. A cidade e de voces.",
+    "Você escolheu a verdade. Boa escolha.",
+    "Tudo o que você vê aqui... os prédios, as luzes, as ruas... é código. Cada pixel, cada janela acesa, cada sombra. É tudo uma simulação. Mas você já sabia disso.",
+    "O que você talvez não saiba é que por trás desta cidade inteira, existe uma visão. Um projeto nascido do desejo de visualizar nosso impacto coletivo.",
+    "A DevX github city nasceu em um fim de semana. A ideia era simples: e se parássemos de olhar para quadrados verdes em um gráfico e começássemos a ver o que eles realmente são? Pessoas. Construindo coisas. Todo dia.",
+    "Esta cidade foi trazida à vida por Gurbaaz Singh, Presidente da DevX GTBIT. Ela serve como um testemunho do poder da nossa comunidade de desenvolvedores.",
+    "Em uma semana, mais de 6.000 desenvolvedores apareceram. 6.000 prédios em uma cidade que não existia 7 dias antes. Vocês construíram isso. Nós apenas ligamos o sinal.",
+    "Esta antena que você clicou? É real. Ela transmite a DevX github city. E manter esse sinal no ar tem custos. Servidores, banco de dados, chamadas de API... cada novo prédio que sobe, o custo aumenta.",
+    "Se a DevX github city significa algo para você, ajude-nos a manter o sinal ligado. Qualquer apoio mantém esta cidade viva.",
+    "Obrigado por estar aqui. Obrigado por construir. A cidade é de vocês.",
     "Nos vemos nas ruas.",
   ],
 };
 
 const SIGNATURE: Record<Lang, string> = {
-  en: "// samuel, founder, solo dev, citizen #1",
-  pt: "// samuel, fundador, dev solo, cidadao #1",
+  en: "// Gurbaaz Singh, President of DevX GTBIT",
+  pt: "// Gurbaaz Singh, Presidente da DevX GTBIT",
 };
 
 const PS_TEXT: Record<Lang, string> = {
-  en: "P.S. Would the white rabbit have found you if you had chosen the other one?",
-  pt: "P.S. Sera que o coelho branco te encontraria se voce tivesse escolhido a outra?",
+  en: "P.S. Every building in this city tells a story. What will yours say?",
+  pt: "P.S. Cada prédio nesta cidade conta uma história. O que o seu vai dizer?",
 };
 
 const CHAR_DELAY = 25;

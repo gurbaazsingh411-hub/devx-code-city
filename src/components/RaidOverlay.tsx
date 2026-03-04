@@ -185,9 +185,8 @@ export default function RaidOverlay({ phase, raidData, onSkip, onExit }: Props) 
               }}
             >
               <h1
-                className={`font-silkscreen text-center text-4xl tracking-wider drop-shadow-lg md:text-6xl ${
-                  isWin ? "text-red-400" : "text-blue-400"
-                }`}
+                className={`font-silkscreen text-center text-4xl tracking-wider drop-shadow-lg md:text-6xl ${isWin ? "text-red-400" : "text-blue-400"
+                  }`}
               >
                 {isWin ? "CONQUERED" : "DEFENDED"}
               </h1>
@@ -262,8 +261,8 @@ export default function RaidOverlay({ phase, raidData, onSkip, onExit }: Props) 
               <button
                 onClick={() => {
                   const text = raidData.success
-                    ? `I just battled ${defenderLogin}'s building on Git City! ${raidData.attack_score} vs ${raidData.defense_score}`
-                    : `${defenderLogin} defended my attack on Git City! ${raidData.attack_score} vs ${raidData.defense_score}`;
+                    ? `I just battled ${defenderLogin}'s building on DevX GitHub City! ${raidData.attack_score} vs ${raidData.defense_score}`
+                    : `${defenderLogin} defended my attack on DevX GitHub City! ${raidData.attack_score} vs ${raidData.defense_score}`;
                   const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent("https://thegitcity.com")}`;
                   window.open(url, "_blank");
                 }}

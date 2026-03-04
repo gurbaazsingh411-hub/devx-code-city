@@ -11,10 +11,10 @@ export function sendWelcomeNotification(devId: number, login: string, rank?: num
     category: "transactional",
     developerId: devId,
     dedupKey: `welcome:${devId}`,
-    title: `Welcome to Git City, @${login}!`,
-    body: `Your building is live in Git City. ${rankText} Check in daily to grow your streak and unlock items.`,
+    title: `Welcome to DevX GitHub City, @${login}!`,
+    body: `Your building is live in DevX GitHub City. ${rankText} Check in daily to grow your streak and unlock items.`,
     html: `
-      <p style="color: #e0d8cc; font-size: 16px;">Your building is live in Git City! ${rankText}</p>
+      <p style="color: #e0d8cc; font-size: 16px;">Your building is live in DevX GitHub City! ${rankText}</p>
       <p style="color: #e0d8cc;">Here's how to get started:</p>
       <ul style="color: #e0d8cc; padding-left: 20px;">
         <li style="margin-bottom: 8px;">Check in daily to build your streak</li>

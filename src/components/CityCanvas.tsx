@@ -15,7 +15,6 @@ import RaidSequence3D, { VehicleMesh } from "./RaidSequence3D";
 import type { RaidPhase } from "@/lib/useRaidSequence";
 import type { RaidExecuteResponse } from "@/lib/raid";
 import FounderSpire from "./FounderSpire";
-import WhiteRabbit from "./WhiteRabbit";
 import CelebrationEffect from "./CelebrationEffect";
 import SuperAircraft from "./SuperAircraft";
 
@@ -304,95 +303,6 @@ function IntroFlyover({ onEnd }: { onEnd: () => void }) {
     camera.lookAt(_introLook);
 
     if (elapsed.current >= INTRO_DURATION && !ended.current) {
-      ended.current = true;
-      onEnd();
-    }
-  });
-
-  return null;
-}
-
-// ─── Rabbit Quest Flyover ────────────────────────────────────
-
-const RABBIT_FLYOVER_DURATION = 8; // seconds
-
-// Pre-allocated temp vectors for RabbitFlyover (avoid GC in useFrame)
-const _rabbitPos = new THREE.Vector3();
-const _rabbitLook = new THREE.Vector3();
-
-function buildRabbitCurves(plazaX: number, plazaZ: number) {
-  // Camera path: orbital start -> descend through city -> pass near rabbit -> climb back to orbital
-  const posPoints = [
-    new THREE.Vector3(800, 700, 1000),               // WP0: Orbital start (seamless)
-    new THREE.Vector3(500, 500, 700),                 // WP1: Descending
-    new THREE.Vector3(plazaX + 300, 300, plazaZ + 300), // WP2: Approaching
-    new THREE.Vector3(plazaX + 100, 80, plazaZ + 100),  // WP3: Close pass (high side)
-    new THREE.Vector3(plazaX - 80, 60, plazaZ - 60),    // WP4: Closest point (low swoop)
-    new THREE.Vector3(plazaX - 200, 150, plazaZ - 250),  // WP5: Pulling away
-    new THREE.Vector3(200, 450, 400),                 // WP6: Climbing back
-    new THREE.Vector3(800, 700, 1000),                // WP7: Orbital end (seamless)
-  ];
-
-  // Look targets converge on the plaza during the close pass, then drift to city center
-  const lookPoints = [
-    new THREE.Vector3(0, 200, 0),                       // WP0: City center
-    new THREE.Vector3(plazaX, 50, plazaZ),              // WP1: Starting to aim at plaza
-    new THREE.Vector3(plazaX, 10, plazaZ),              // WP2: Locked on plaza
-    new THREE.Vector3(plazaX, 5, plazaZ),               // WP3: Locked on plaza (ground level)
-    new THREE.Vector3(plazaX, 5, plazaZ),               // WP4: Holding on plaza
-    new THREE.Vector3(plazaX, 30, plazaZ),              // WP5: Lifting gaze
-    new THREE.Vector3(0, 150, 0),                       // WP6: Drifting to city center
-    new THREE.Vector3(0, 200, 0),                       // WP7: City center (match orbital)
-  ];
-
-  const posCurve = new THREE.CatmullRomCurve3(posPoints, false, "centripetal");
-  const lookCurve = new THREE.CatmullRomCurve3(lookPoints, false, "centripetal");
-  posCurve.getLength();
-  lookCurve.getLength();
-  return { posCurve, lookCurve };
-}
-
-function RabbitFlyover({
-  targetPlazaIndex,
-  plazas,
-  onEnd,
-}: {
-  targetPlazaIndex: number;
-  plazas: CityPlaza[];
-  onEnd: () => void;
-}) {
-  const { camera } = useThree();
-  const elapsed = useRef(0);
-  const ended = useRef(false);
-
-  const plaza = plazas[targetPlazaIndex];
-  const plazaX = plaza?.position[0] ?? 0;
-  const plazaZ = plaza?.position[2] ?? 0;
-
-  const { posCurve, lookCurve } = useMemo(
-    () => buildRabbitCurves(plazaX, plazaZ),
-    [plazaX, plazaZ]
-  );
-
-  useEffect(() => {
-    camera.position.set(800, 700, 1000);
-    camera.lookAt(0, 200, 0);
-  }, [camera]);
-
-  useFrame((_, delta) => {
-    if (ended.current) return;
-    elapsed.current += delta;
-
-    const rawT = Math.min(elapsed.current / RABBIT_FLYOVER_DURATION, 1);
-    const t = introEase(rawT);
-
-    posCurve.getPointAt(t, _rabbitPos);
-    lookCurve.getPointAt(t, _rabbitLook);
-
-    camera.position.copy(_rabbitPos);
-    camera.lookAt(_rabbitLook);
-
-    if (elapsed.current >= RABBIT_FLYOVER_DURATION && !ended.current) {
       ended.current = true;
       onEnd();
     }
@@ -1009,7 +919,7 @@ function SkyCollectibles({ playerPosRef, accentColor, onCollect, cityRadius }: {
         collectedCount.current++;
 
         // Combo logic
-        const now = t;
+        const now = state.clock.elapsedTime;
         if (now - lastCollectTime.current < COMBO_WINDOW) {
           comboCount.current++;
         } else {
@@ -1290,7 +1200,7 @@ function InstancedDecorations({ items, roadMarkingColor, sidewalkColor }: { item
     fountainMid: new THREE.CylinderGeometry(5, 5.5, 2, 12),
     fountainUpper: new THREE.CylinderGeometry(2.5, 3.2, 2, 10),
     fountainWater: new THREE.CylinderGeometry(1.8, 2, 1.2, 10),
-  }), geos);
+  }), []);
 
   // Shared materials
   const mats = useMemo(() => ({
@@ -1750,6 +1660,9 @@ function Waterfront({ river, dockColor }: { river: CityRiver; dockColor: string 
     const halfRange = (dockCount / 2) * dockSpacing / 2;
     let di = 0;
     let bi = 0;
+    const geos: any[] = [];
+    const color = new THREE.Color(THEME.accent);
+    const pos = new THREE.Vector3();
     const q = new THREE.Quaternion();
     const s = new THREE.Vector3(1, 1, 1);
     const p = new THREE.Vector3();
@@ -1854,11 +1767,6 @@ interface Props {
   raidDefender?: CityBuilding | null;
   onRaidPhaseComplete?: (phase: RaidPhase) => void;
   onLandmarkClick?: () => void;
-  rabbitSighting?: number | null;
-  onRabbitCaught?: () => void;
-  rabbitCinematic?: boolean;
-  onRabbitCinematicEnd?: () => void;
-  rabbitCinematicTarget?: number;
   ghostPreviewLogin?: string | null;
   holdRise?: boolean;
   celebrationActive?: boolean;
@@ -1873,10 +1781,8 @@ function SceneController({ setEmissiveIntensity }: { setEmissiveIntensity: (i: n
   return null;
 }
 
-// Plaza indices for rabbit sightings (progressively further from center)
-const RABBIT_PLAZA_INDICES = [1, 2, 4, 7, 10]; // plazas[1]=slot3, [2]=slot7, [4]=slot18, [7]=slot42, [10]=slot75
 
-export default function CityCanvas({ buildings, plazas, decorations, river, bridges, flyMode, flyVehicle, onExitFly, onCollect, themeIndex, onHud, onPause, focusedBuilding, focusedBuildingB, accentColor, onClearFocus, onBuildingClick, onFocusInfo, flyPauseSignal, flyHasOverlay, introMode, onIntroEnd, raidPhase, raidData, raidAttacker, raidDefender, onRaidPhaseComplete, onLandmarkClick, rabbitSighting, onRabbitCaught, rabbitCinematic, onRabbitCinematicEnd, rabbitCinematicTarget, ghostPreviewLogin, holdRise, celebrationActive }: Props) {
+export default function CityCanvas({ buildings, plazas, decorations, river, bridges, flyMode, flyVehicle, onExitFly, onCollect, themeIndex, onHud, onPause, focusedBuilding, focusedBuildingB, accentColor, onClearFocus, onBuildingClick, onFocusInfo, flyPauseSignal, flyHasOverlay, introMode, onIntroEnd, raidPhase, raidData, raidAttacker, raidDefender, onRaidPhaseComplete, onLandmarkClick, ghostPreviewLogin, holdRise, celebrationActive }: Props) {
   const t = THEMES[themeIndex] ?? THEMES[0];
   const showPerf = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("perf");
   const [dpr, setDpr] = useState(1);
@@ -1917,15 +1823,7 @@ export default function CityCanvas({ buildings, plazas, decorations, river, brid
 
       {introMode && <IntroFlyover onEnd={onIntroEnd ?? (() => { })} />}
 
-      {rabbitCinematic && rabbitCinematicTarget != null && (
-        <RabbitFlyover
-          targetPlazaIndex={RABBIT_PLAZA_INDICES[(rabbitCinematicTarget - 1)] ?? 1}
-          plazas={plazas}
-          onEnd={onRabbitCinematicEnd ?? (() => { })}
-        />
-      )}
-
-      {!introMode && !rabbitCinematic && !flyMode && (!raidPhase || raidPhase === "idle" || raidPhase === "preview") && (
+      {!introMode && !flyMode && (!raidPhase || raidPhase === "idle" || raidPhase === "preview") && (
         <OrbitScene buildings={buildings} focusedBuilding={focusedBuilding ?? null} focusedBuildingB={focusedBuildingB} />
       )}
 
@@ -1952,19 +1850,6 @@ export default function CityCanvas({ buildings, plazas, decorations, river, brid
 
       {celebrationActive && <CelebrationEffect cityRadius={cityRadius} />}
 
-      {rabbitSighting && rabbitSighting >= 1 && rabbitSighting <= 5 && (() => {
-        const plazaIdx = RABBIT_PLAZA_INDICES[rabbitSighting - 1];
-        const plaza = plazas[plazaIdx];
-        if (!plaza) return null;
-        const pos: [number, number, number] = [plaza.position[0], 0.5, plaza.position[2]];
-        return (
-          <WhiteRabbit
-            position={pos}
-            visible={true}
-            onCaught={onRabbitCaught ?? (() => { })}
-          />
-        );
-      })()}
 
       {river && (
         <>
